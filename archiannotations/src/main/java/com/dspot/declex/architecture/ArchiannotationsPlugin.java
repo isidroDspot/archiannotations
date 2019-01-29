@@ -8,11 +8,11 @@ import org.androidannotations.plugin.AndroidAnnotationsPlugin;
 import java.util.LinkedList;
 import java.util.List;
 
-public class DeclexArchitecturePlugin extends AndroidAnnotationsPlugin {
+public class ArchiannotationsPlugin extends AndroidAnnotationsPlugin {
 
     @Override
     public String getName() {
-        return "declex-architecture";
+        return "archiannotations";
     }
 
     @Override

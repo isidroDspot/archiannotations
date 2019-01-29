@@ -17,10 +17,8 @@
     <dependencies>
 
         <dependency>
-            <groupId>org.androidannotations</groupId>
-            <artifactId>androidannotations-api</artifactId>
-            <version>${aa.version}</version>
-            <scope>provided</scope>
+            <groupId>com.dspot</groupId>
+            <artifactId>declex-api</artifactId>
         </dependency>
 
     </dependencies>
@@ -28,10 +26,6 @@
 	<build>
 
         <finalName>archiannotations-api-${project.version}</finalName>
-        <directory>target</directory>
-
-		<sourceDirectory>src</sourceDirectory>
-        <outputDirectory>target/classes</outputDirectory>
 
         <pluginManagement>
             <plugins>
@@ -84,7 +78,6 @@
                     </execution>
                 </executions>
 				<configuration>
-                    <compilerArgument>-proc:none</compilerArgument>
 					<source>1.7</source>
 					<target>1.7</target>
 				</configuration>

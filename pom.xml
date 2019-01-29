@@ -50,10 +50,12 @@
     <modules>
         <module>archiannotations</module>
         <module>archiannotations-api</module>
+        <!--<module>../_public/declex</module>-->
+        <!--<module>../_public/declex-api</module>-->
     </modules>
 
     <properties>
-        <aa.version>4.5.2</aa.version>
+        <declex.version>2.0.a.27</declex.version>
     </properties>
 
     <repositories>
@@ -68,8 +70,12 @@
         </repository>
 
         <repository>
-            <id>com.android.support</id>
-            <url>file://${env.ANDROID_HOME}/extras/android/m2repository</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>mavenLocal</id>
+            <name>Maven Local Repository</name>
+            <url>file://C:\Users\adria\.m2\repository</url>
         </repository>
 
     </repositories>
@@ -93,23 +99,14 @@
             <dependency>
                 <groupId>com.dspot</groupId>
                 <artifactId>declex-api</artifactId>
-                <version>${project.version}</version>
+                <version>${declex.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.dspot</groupId>
                 <artifactId>declex</artifactId>
-                <version>${project.version}</version>
-                <scope>compile</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.helger</groupId>
-                <artifactId>jcodemodel</artifactId>
-                <version>2.8.6</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.android</groupId>
-                <artifactId>android</artifactId>
-                <version>4.1.1.4</version>
+                <version>${declex.version}</version>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

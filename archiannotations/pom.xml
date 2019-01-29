@@ -16,15 +16,13 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.androidannotations</groupId>
-            <artifactId>androidannotations-api</artifactId>
-            <version>${aa.version}</version>
-            <scope>provided</scope>
+            <groupId>com.dspot</groupId>
+            <artifactId>declex</artifactId>
         </dependency>
 
         <dependency>
             <groupId>pl.com.dspot</groupId>
-            <artifactId>declex-architecture-api</artifactId>
+            <artifactId>archiannotations-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -32,17 +30,7 @@
 
 	<build>
 
-        <finalName>declex-architecture-${project.version}</finalName>
-        <directory>target</directory>
-
-		<sourceDirectory>src</sourceDirectory>
-        <outputDirectory>target/classes</outputDirectory>
-
-		<resources>
-			<resource>
-				<directory>resources</directory>
-			</resource>
-		</resources>
+        <finalName>archiannotations-${project.version}</finalName>
 
         <pluginManagement>
             <plugins>
@@ -98,9 +86,6 @@
                     <compilerArgument>-proc:none</compilerArgument>
 					<source>1.7</source>
 					<target>1.7</target>
-					<excludes>
-						<exclude>**/*.ftl.java</exclude>
-					</excludes>
 				</configuration>
 			</plugin>
 
