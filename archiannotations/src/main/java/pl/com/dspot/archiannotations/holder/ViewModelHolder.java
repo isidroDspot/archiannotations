@@ -18,10 +18,7 @@ package pl.com.dspot.archiannotations.holder;
 import com.helger.jcodemodel.JBlock;
 import com.helger.jcodemodel.JMethod;
 import org.androidannotations.helper.APTCodeModelHelper;
-import org.androidannotations.holder.EBeanHolder;
 import org.androidannotations.holder.EComponentHolder;
-import org.androidannotations.holder.GeneratedClassHolder;
-import org.androidannotations.plugin.PluginClassHolder;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
