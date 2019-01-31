@@ -50,8 +50,8 @@
     <modules>
         <module>archiannotations</module>
         <module>archiannotations-api</module>
-        <!--<module>../_public/declex</module>-->
-        <!--<module>../_public/declex-api</module>-->
+        <module>../_public/declex</module>
+        <module>../_public/declex-api</module>
     </modules>
 
     <properties>
