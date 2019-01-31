@@ -5,12 +5,13 @@ import com.helger.jcodemodel.JMethod;
 import com.helger.jcodemodel.JVar;
 import org.androidannotations.holder.EBeanHolder;
 import org.androidannotations.holder.EComponentHolder;
+import org.androidannotations.internal.process.ProcessHolder;
 import org.androidannotations.plugin.PluginClassHolder;
 
 import static com.helger.jcodemodel.JMod.PRIVATE;
 import static com.helger.jcodemodel.JMod.PUBLIC;
 
-public class BaseArchitecturalHolder extends PluginClassHolder<EComponentHolder>  {
+public class BaseArchitecturalHolder extends EComponentHolder<EComponentHolder>  {
 
     public static String REBIND_NAME = "rebind";
 
@@ -64,6 +65,10 @@ public class BaseArchitecturalHolder extends PluginClassHolder<EComponentHolder>
     private void setConstructor() {
         //Create a zero argument constructor
         constructorMethod = holder().getGeneratedClass().constructor(PUBLIC);
+    }
+
+    public ProcessHolder.Classes getClasses() {
+        return environment().getClasses();
     }
 
 }

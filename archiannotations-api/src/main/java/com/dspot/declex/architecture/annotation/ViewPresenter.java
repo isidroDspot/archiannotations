@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
 @Import
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.FIELD)
-public @interface ArchInject {
+public @interface ViewPresenter {
 
     Scope scope() default Scope.Default;
 

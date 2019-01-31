@@ -17,8 +17,8 @@
     <dependencies>
 
         <dependency>
-            <groupId>com.dspot</groupId>
-            <artifactId>declex-api</artifactId>
+            <groupId>org.androidannotations</groupId>
+            <artifactId>androidannotations-api</artifactId>
         </dependency>
 
     </dependencies>

@@ -50,12 +50,11 @@
     <modules>
         <module>archiannotations</module>
         <module>archiannotations-api</module>
-        <!--<module>../_public/declex</module>-->
-        <!--<module>../_public/declex-api</module>-->
+        <module>../_public/Dependencies/androidannotations/AndroidAnnotations/androidannotations-core</module>
     </modules>
 
     <properties>
-        <declex.version>2.0.a.27</declex.version>
+        <aa.version>4.6.0</aa.version>
     </properties>
 
     <repositories>
@@ -97,15 +96,15 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.dspot</groupId>
-                <artifactId>declex-api</artifactId>
-                <version>${declex.version}</version>
+                <groupId>org.androidannotations</groupId>
+                <artifactId>androidannotations</artifactId>
+                <version>${aa.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>com.dspot</groupId>
-                <artifactId>declex</artifactId>
-                <version>${declex.version}</version>
+                <groupId>org.androidannotations</groupId>
+                <artifactId>androidannotations-api</artifactId>
+                <version>${aa.version}</version>
                 <scope>provided</scope>
             </dependency>
         </dependencies>

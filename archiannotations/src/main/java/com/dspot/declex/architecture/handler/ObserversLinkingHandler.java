@@ -1,19 +1,14 @@
 package com.dspot.declex.architecture.handler;
 
-import com.dspot.declex.architecture.annotation.ArchInject;
-import com.dspot.declex.architecture.annotation.EViewPresenter;
 import com.dspot.declex.architecture.annotation.Observable;
 import com.dspot.declex.architecture.annotation.Observer;
-import com.dspot.declex.architecture.api.MethodCall;
 import com.dspot.declex.architecture.holder.ObserversHolder;
 import com.dspot.declex.architecture.holder.ViewModelHolder;
-import com.dspot.declex.architecture.holder.ViewPresenterHolder;
 import com.helger.jcodemodel.*;
 import org.androidannotations.AndroidAnnotationsEnvironment;
 import org.androidannotations.ElementValidation;
 import org.androidannotations.handler.BaseAnnotationHandler;
 import org.androidannotations.handler.MethodInjectionHandler;
-import org.androidannotations.helper.ModelConstants;
 import org.androidannotations.holder.EComponentHolder;
 
 import javax.lang.model.element.Element;
@@ -24,11 +19,12 @@ import javax.lang.model.type.TypeMirror;
 import java.util.List;
 
 import static com.dspot.declex.api.util.FormatsUtils.fieldToGetter;
-import static com.dspot.declex.architecture.ArchCanonicalNameConstants.*;
+import static com.dspot.declex.architecture.ArchCanonicalNameConstants.LIFECYCLE_OWNER;
+import static com.dspot.declex.architecture.ArchCanonicalNameConstants.VIEW_MODEL;
 import static com.dspot.declex.architecture.handler.ObserverHandler.observerNameFor;
 import static com.dspot.declex.util.TypeUtils.*;
 import static com.helger.jcodemodel.JExpr.*;
-import static com.sun.codemodel.internal.JMod.PRIVATE;
+import static org.androidannotations.helper.ModelConstants.generationSuffix;
 
 public class ObserversLinkingHandler<T extends EComponentHolder> extends BaseAnnotationHandler<T> {
 
@@ -59,28 +55,9 @@ public class ObserversLinkingHandler<T extends EComponentHolder> extends BaseAnn
 
     }
 
-    protected boolean isViewPresenter(Element element) {
-
-        //Check if the class is a View Presenter
-        TypeMirror typeMirror = annotationHelper.extractAnnotationClassParameter(element);
-        if (typeMirror == null) {
-            typeMirror = element.asType();
-            typeMirror = getProcessingEnvironment().getTypeUtils().erasure(typeMirror);
-        }
-
-        String typeQualifiedName = typeMirror.toString();
-        String generatedClass = annotationHelper.generatedClassQualifiedNameFromQualifiedName(typeQualifiedName);
-        TypeElement generatorTypeElement = getProcessingEnvironment().getElementUtils().getTypeElement(
-                generatedClass.substring(0, generatedClass.length() - 1)
-        );
-
-        return adiHelper.hasAnnotation(generatorTypeElement, EViewPresenter.class);
-
-    }
-
     protected void process(String generatorClassName, Element injectingElement, AbstractJClass injectingEnhancedClass, EComponentHolder injectingElementHolder) {
         final IJExpression injectingField;
-        if (injectingElement.asType().toString().endsWith(ModelConstants.generationSuffix())) {
+        if (injectingElement.asType().toString().endsWith(generationSuffix())) {
             injectingField = ref(injectingElement.getSimpleName().toString());
         } else {
             injectingField = cast(injectingEnhancedClass, ref(injectingElement.getSimpleName().toString()));

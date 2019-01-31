@@ -1,8 +1,9 @@
 package com.dspot.declex.architecture.handler;
 
-import com.dspot.declex.architecture.annotation.ArchInject;
 import com.dspot.declex.architecture.annotation.EViewModel;
 import com.dspot.declex.architecture.annotation.EViewPresenter;
+import com.dspot.declex.architecture.annotation.ViewModel;
+import com.dspot.declex.architecture.annotation.ViewPresenter;
 import com.dspot.declex.architecture.helper.ViewsLinkingListenersHelper;
 import com.dspot.declex.architecture.helper.ViewsLinkingObservablesHelper;
 import com.dspot.declex.architecture.holder.ViewModelHolder;
@@ -14,7 +15,10 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.handler.MethodInjectionHandler;
 import org.androidannotations.helper.InjectHelper;
 import org.androidannotations.helper.ModelConstants;
-import org.androidannotations.holder.*;
+import org.androidannotations.holder.EActivityHolder;
+import org.androidannotations.holder.EComponentHolder;
+import org.androidannotations.holder.EComponentWithViewSupportHolder;
+import org.androidannotations.holder.EFragmentHolder;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.type.TypeMirror;
@@ -22,13 +26,11 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.dspot.declex.api.util.FormatsUtils.fieldToGetter;
 import static com.dspot.declex.architecture.ArchCanonicalNameConstants.VIEW_MODEL_PROVIDERS;
-import static com.dspot.declex.util.TypeUtils.getGeneratedClassName;
 import static com.helger.jcodemodel.JExpr.*;
 import static org.androidannotations.helper.CanonicalNameConstants.FRAGMENT_ACTIVITY;
 
-public class ArchInjectHandler extends ObserversLinkingHandler<EComponentWithViewSupportHolder> implements MethodInjectionHandler<EComponentWithViewSupportHolder> {
+public class ViewPresenterHandler extends ObserversLinkingHandler<EComponentWithViewSupportHolder> implements MethodInjectionHandler<EComponentWithViewSupportHolder> {
 
     private final InjectHelper<EComponentWithViewSupportHolder> injectHelper;
 
@@ -38,8 +40,8 @@ public class ArchInjectHandler extends ObserversLinkingHandler<EComponentWithVie
 
     private final Map<EActivityHolder, JBlock> blockAfterSuperCallPerHolder = new HashMap<>();
 
-    public ArchInjectHandler(AndroidAnnotationsEnvironment environment) {
-        super(ArchInject.class, environment);
+    public ViewPresenterHandler(AndroidAnnotationsEnvironment environment) {
+        super(ViewPresenter.class, environment);
 
         injectHelper = new InjectHelper<>(validatorHelper, this);
         viewsLinkingObservablesHelper = new ViewsLinkingObservablesHelper(environment);
@@ -50,10 +52,8 @@ public class ArchInjectHandler extends ObserversLinkingHandler<EComponentWithVie
     @Override
     public void validate(Element element, ElementValidation validation) {
 
-        //Don't validate further if annotated with EBean
-        if (adiHelper.hasAnnotation(element, Bean.class)) return;
 
-        injectHelper.validate(ArchInject.class, element, validation);
+        injectHelper.validate(ViewModel.class, element, validation);
         if (!validation.isValid()) {
             return;
         }
@@ -68,8 +68,8 @@ public class ArchInjectHandler extends ObserversLinkingHandler<EComponentWithVie
 
             validatorHelper.isNotPrivate(element, validation);
 
-            ArchInject archInject = adiHelper.getAnnotation(element, ArchInject.class);
-            if (archInject.scope() == ArchInject.Scope.Default) {
+            ViewModel viewModel = adiHelper.getAnnotation(element, ViewModel.class);
+            if (viewModel.scope() == ViewModel.Scope.Default) {
                 boolean wasValid = validation.isValid();
                 validatorHelper.enclosingElementHasEActivityOrEFragmentOrEViewOrEViewGroup(element, validation);
 
@@ -82,7 +82,7 @@ public class ArchInjectHandler extends ObserversLinkingHandler<EComponentWithVie
     }
 
     @Override
-    public JBlock getInvocationBlock(Element element, EComponentWithViewSupportHolder holder) {
+    public JBlock getInvocationBlock(EComponentWithViewSupportHolder holder) {
 
         if (holder instanceof EActivityHolder && !isViewPresenter(element)) {
             return getBlockAfterSuperCall((EActivityHolder) holder);
@@ -138,10 +138,10 @@ public class ArchInjectHandler extends ObserversLinkingHandler<EComponentWithVie
         } else {
 
             //Inject the ViewModel
-            ArchInject archInject = adiHelper.getAnnotation(element, ArchInject.class);
+            ViewModel viewModel = adiHelper.getAnnotation(element, ViewModel.class);
 
             JInvocation archInstance;
-            switch (archInject.scope()) {
+            switch (viewModel.scope()) {
                 case Activity:
 
                     //Add check for Lifecycle Owner Content
