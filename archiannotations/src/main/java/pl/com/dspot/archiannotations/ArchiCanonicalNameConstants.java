@@ -15,7 +15,7 @@
  */
 package pl.com.dspot.archiannotations;
 
-public class ArchCanonicalNameConstants {
+public class ArchiCanonicalNameConstants {
 
     public static final String VIEW_MODEL_PROVIDERS = "android.arch.lifecycle.ViewModelProviders";
 

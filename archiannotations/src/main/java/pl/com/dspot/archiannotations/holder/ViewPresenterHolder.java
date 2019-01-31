@@ -19,7 +19,7 @@ import pl.com.dspot.archiannotations.api.MethodCall;
 import com.helger.jcodemodel.*;
 import org.androidannotations.holder.EComponentHolder;
 
-import static pl.com.dspot.archiannotations.ArchCanonicalNameConstants.*;
+import static pl.com.dspot.archiannotations.ArchiCanonicalNameConstants.*;
 import static com.helger.jcodemodel.JExpr.*;
 import static com.helger.jcodemodel.JMod.PRIVATE;
 

@@ -19,7 +19,7 @@ import com.helger.jcodemodel.*;
 import org.androidannotations.holder.GeneratedClassHolder;
 import org.androidannotations.plugin.PluginClassHolder;
 
-import static pl.com.dspot.archiannotations.ArchCanonicalNameConstants.OBSERVER;
+import static pl.com.dspot.archiannotations.ArchiCanonicalNameConstants.OBSERVER;
 
 public class ObserversHolder extends PluginClassHolder<GeneratedClassHolder> {
 

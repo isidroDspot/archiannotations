@@ -61,18 +61,18 @@ public class BaseArchitecturalHolder extends PluginClassHolder<EComponentHolder>
 
     private void setRebind() {
 
-        //Create rootView field
-        rootViewField = holder().getGeneratedClass().field(PRIVATE, getClasses().OBJECT, "rootView_");
-
-        rebindMethod = holder().getGeneratedClass().method(PUBLIC, getCodeModel().VOID, REBIND_NAME);
-        JVar context = rebindMethod.param(getClasses().CONTEXT, "context");
-        JVar rootView = rebindMethod.param(getClasses().OBJECT, "rootView");
-
-        rebindMethod.body().assign(rootViewField, rootView);
-
-        if (holder() instanceof EBeanHolder) {
-            rebindMethod.body().invoke("rebind").arg(context);
-        }
+//        //Create rootView field
+//        rootViewField = holder().getGeneratedClass().field(PRIVATE, getClasses().OBJECT, "rootView_");
+//
+//        rebindMethod = holder().getGeneratedClass().method(PUBLIC, getCodeModel().VOID, REBIND_NAME);
+//        JVar context = rebindMethod.param(getClasses().CONTEXT, "context");
+//        JVar rootView = rebindMethod.param(getClasses().OBJECT, "rootView");
+//
+//        rebindMethod.body().assign(rootViewField, rootView);
+//
+//        if (holder() instanceof EBeanHolder) {
+//            rebindMethod.body().invoke("rebind").arg(context);
+//        }
 
     }
 

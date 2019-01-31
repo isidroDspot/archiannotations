@@ -15,71 +15,50 @@
  */
 package pl.com.dspot.archiannotations.handler;
 
-import pl.com.dspot.archiannotations.annotation.ArchInject;
-import pl.com.dspot.archiannotations.annotation.EViewModel;
-import pl.com.dspot.archiannotations.holder.ViewModelHolder;
-import com.dspot.declex.helper.ActionHelper;
 import org.androidannotations.AndroidAnnotationsEnvironment;
 import org.androidannotations.ElementValidation;
 import org.androidannotations.annotations.Bean;
-import org.androidannotations.annotations.EBean;
-import org.androidannotations.annotations.RootContext;
 import org.androidannotations.handler.BaseAnnotationHandler;
 import org.androidannotations.holder.EBeanHolder;
+import pl.com.dspot.archiannotations.annotation.EViewModel;
+import pl.com.dspot.archiannotations.annotation.ViewModel;
+import pl.com.dspot.archiannotations.holder.EViewModelHolder;
 
 import javax.lang.model.element.Element;
-import java.util.Map;
 
-import static pl.com.dspot.archiannotations.ArchCanonicalNameConstants.VIEW_MODEL;
-import static com.dspot.declex.util.TypeUtils.isSubtype;
-import static com.helger.jcodemodel.JExpr.*;
+import static com.helger.jcodemodel.JExpr._null;
+import static com.helger.jcodemodel.JExpr._this;
+import static pl.com.dspot.archiannotations.ArchiCanonicalNameConstants.VIEW_MODEL;
 
 public class EViewModelHandler extends BaseAnnotationHandler<EBeanHolder> {
 
     public EViewModelHandler(AndroidAnnotationsEnvironment environment) {
-        super(EViewModel.class, environment);
-    }
-
-    @Override
-    public void getDependencies(Element element, Map<Element, Object> dependencies) {
-        dependencies.put(element, EBean.class);
+        super(EViewModel.class.getCanonicalName(), environment);
     }
 
     @Override
     public void validate(Element element, ElementValidation valid) {
-        if (!isSubtype(element, VIEW_MODEL, getProcessingEnvironment())) {
-            valid.addError("The class " + element + " should be a subclass of ViewModel");
-        }
-        
-        //Ensure the ViewModel doesn't have action objects (since actions have a reference to the Context)
-        ActionHelper actionHelper = ActionHelper.getInstance(getEnvironment());
 
-        for (Element elem : element.getEnclosedElements()) {
-            if (actionHelper.hasAction(elem)) {
-                valid.addError(elem, "Actions are not permitted inside ViewModels, you should declare them in support classes");
-            }
+        validatorHelper.extendsType(element, VIEW_MODEL, valid);
 
-            if (adiHelper.hasAnnotation(elem, RootContext.class)) {
-                valid.addError(elem, "You should never inject the Root Context in a ViewModel");
-            }
-
-        }
+        //TODO Do validations about data which can be injected in ViewModels
 
     }
 
     @Override
     public void process(Element element, EBeanHolder holder) {
 
-        ViewModelHolder viewModelHolder = holder.getPluginHolder(new ViewModelHolder(holder));
+        EViewModelHolder viewModelHolder = holder.getPluginHolder(new EViewModelHolder(holder));
 
-        viewModelHolder.getConstructorMethod();
+        viewModelHolder.setEmptyConstructor();
+        viewModelHolder.setBindToMethod();
+        viewModelHolder.setOnClearedMethod();
 
-        viewModelHolder.getRebindMethod();
 
         //Clear the context variable after the injections, to avoid that the class hold references to the Context
         holder.getInitBodyAfterInjectionBlock().assign(holder.getContextField(), _null());
 
-        //Clear the rootView variable after the injection
+        //Clear the rootView variable after the injections, to avoid that the class hold references to a view/context directly
         holder.getInitBodyAfterInjectionBlock().assign(viewModelHolder.getRootViewField(), _null());
 
         //Search for all the injections, and set them to null in the "onCleared", so no reference is kept
@@ -88,11 +67,11 @@ public class EViewModelHandler extends BaseAnnotationHandler<EBeanHolder> {
 
             boolean markedToRemove = false;
 
-            if (adiHelper.hasAnnotation(elem, Bean.class)) {
+            if (elem.getAnnotation(Bean.class) != null) {
                 markedToRemove = true;
             }
 
-            if (adiHelper.hasAnnotation(elem, ArchInject.class)) {
+            if (elem.getAnnotation(ViewModel.class) != null) {
                 markedToRemove = true;
             }
 
@@ -103,5 +82,4 @@ public class EViewModelHandler extends BaseAnnotationHandler<EBeanHolder> {
         }
 
     }
-
 }
