@@ -27,40 +27,40 @@ import static com.helger.jcodemodel.JMod.PUBLIC;
 
 public class BaseArchitecturalHolder extends PluginClassHolder<EComponentHolder>  {
 
-    public static String REBIND_NAME = "rebind";
-
-    private JFieldVar rootViewField;
-    private JMethod rebindMethod;
-
-    private JMethod constructorMethod;
+//    public static String REBIND_NAME = "rebind";
+//
+//    private JFieldVar rootViewField;
+//    private JMethod rebindMethod;
+//
+//    private JMethod constructorMethod;
 
     public BaseArchitecturalHolder(EComponentHolder holder) {
         super(holder);
     }
-
-    public JFieldVar getRootViewField() {
-        if (rootViewField == null) {
-            setRebind();
-        }
-        return rootViewField;
-    }
-
-    public JMethod getRebindMethod() {
-        if (rebindMethod == null) {
-            setRebind();
-        }
-        return rebindMethod;
-    }
-
-    public JMethod getConstructorMethod() {
-        if (constructorMethod == null) {
-            setConstructor();
-        }
-        return constructorMethod;
-    }
-
-    private void setRebind() {
-
+//
+//    public JFieldVar getRootViewField() {
+//        if (rootViewField == null) {
+//            setRebind();
+//        }
+//        return rootViewField;
+//    }
+//
+//    public JMethod getRebindMethod() {
+//        if (rebindMethod == null) {
+//            setRebind();
+//        }
+//        return rebindMethod;
+//    }
+//
+//    public JMethod getConstructorMethod() {
+//        if (constructorMethod == null) {
+//            setConstructor();
+//        }
+//        return constructorMethod;
+//    }
+//
+//    private void setRebind() {
+//
 //        //Create rootView field
 //        rootViewField = holder().getGeneratedClass().field(PRIVATE, getClasses().OBJECT, "rootView_");
 //
@@ -73,12 +73,12 @@ public class BaseArchitecturalHolder extends PluginClassHolder<EComponentHolder>
 //        if (holder() instanceof EBeanHolder) {
 //            rebindMethod.body().invoke("rebind").arg(context);
 //        }
-
-    }
-
-    private void setConstructor() {
-        //Create a zero argument constructor
-        constructorMethod = holder().getGeneratedClass().constructor(PUBLIC);
-    }
+//
+//    }
+//
+//    private void setConstructor() {
+//        //Create a zero argument constructor
+//        constructorMethod = holder().getGeneratedClass().constructor(PUBLIC);
+//    }
 
 }
