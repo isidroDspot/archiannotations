@@ -21,9 +21,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.CLASS)
-@Target({ElementType.FIELD, ElementType.METHOD})
-public @interface Observer {
-
-    boolean observeForever() default false;
+@Target(ElementType.TYPE)
+public @interface EBinder {
 
 }

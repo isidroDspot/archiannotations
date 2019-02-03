@@ -74,7 +74,6 @@ public class EViewModelHolder extends PluginClassHolder<EBeanHolder> {
 
 	public JFieldVar getRootViewField() {
 		if (rootViewField == null) {
-			System.out.println("CREATED FOR: " + holder() + " with " + this);
 			rootViewField = holder().getGeneratedClass().field(PRIVATE, getClasses().OBJECT, "rootView" + generationSuffix());
 		}
 		return rootViewField;

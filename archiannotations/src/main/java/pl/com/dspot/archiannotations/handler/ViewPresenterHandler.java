@@ -24,7 +24,6 @@ import org.androidannotations.holder.EActivityHolder;
 import org.androidannotations.holder.EComponentWithViewSupportHolder;
 import pl.com.dspot.archiannotations.annotation.ViewModel;
 import pl.com.dspot.archiannotations.helper.ViewsLinkingListenersHelper;
-import pl.com.dspot.archiannotations.helper.ViewsLinkingObservablesHelper;
 
 import javax.lang.model.element.Element;
 import java.io.StringWriter;
@@ -33,20 +32,11 @@ import java.util.Map;
 
 public class ViewPresenterHandler extends ObserversLinkingHandler<EComponentWithViewSupportHolder> implements MethodInjectionHandler<EComponentWithViewSupportHolder> {
 
-    private final InjectHelper<EComponentWithViewSupportHolder> injectHelper;
-
-    private final ViewsLinkingObservablesHelper viewsLinkingObservablesHelper;
-
-    private final ViewsLinkingListenersHelper viewsLinkingListenersHelper;
-
     private final Map<EActivityHolder, JBlock> blockAfterSuperCallPerHolder = new HashMap<>();
 
     public ViewPresenterHandler(AndroidAnnotationsEnvironment environment) {
         super(ViewModel.class, environment);
 
-        injectHelper = new InjectHelper<>(validatorHelper, this);
-        viewsLinkingObservablesHelper = new ViewsLinkingObservablesHelper(environment);
-        viewsLinkingListenersHelper = new ViewsLinkingListenersHelper(environment);
 
     }
 

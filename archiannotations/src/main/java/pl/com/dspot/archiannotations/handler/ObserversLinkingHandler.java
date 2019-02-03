@@ -115,7 +115,7 @@ public class ObserversLinkingHandler<T extends EComponentHolder> extends BaseAnn
 //    protected void performObservation(String observableFieldName, String observableTypeName, Element injectingElement,
 //                                      IJExpression injectingField, AbstractJClass injectingEnhancedClass, EComponentHolder injectingElementHolder) {
 //
-//        final ObserversHolder observersHolder = injectingElementHolder.getPluginHolder(new ObserversHolder(injectingElementHolder));
+//        final ObserverHolder observersHolder = injectingElementHolder.getPluginHolder(new ObserverHolder(injectingElementHolder));
 //        final TypeElement rootElement = getRootElement(injectingElement);
 //
 //        final JInvocation observableGetterInvoke = invoke(injectingField, fieldToGetter(observableFieldName));
@@ -152,37 +152,6 @@ public class ObserversLinkingHandler<T extends EComponentHolder> extends BaseAnn
 //
 //    }
 //
-//    private void registerObserver(IJExpression observableGetterReference, IJExpression observerGetterInvoke,
-//                                  Element injectingElement, EComponentHolder injectingElementHolder) {
-//
-//        //Register the observer
-//        JBlock block;
-//        if (this instanceof MethodInjectionHandler) {
-//            block = ((MethodInjectionHandler) this).getInvocationBlock(injectingElement, injectingElementHolder);
-//        } else {
-//            block = injectingElementHolder.getInitBodyAfterInjectionBlock();
-//        }
-//
-//        //Different behaviors depending on the injected element holder class type
-//        if (isSubtype(injectingElementHolder.getAnnotatedElement(), LIFECYCLE_OWNER, getProcessingEnvironment())) {
-//            block.add(observableGetterReference.invoke("observe").arg(_this()).arg(observerGetterInvoke));
-//        } else if (isSubtype(injectingElementHolder.getAnnotatedElement(), VIEW_MODEL, getProcessingEnvironment())) {
-//            block.add(observableGetterReference.invoke("observeForever").arg(observerGetterInvoke));
-//
-//            //Remove the observer when the ViewModel is not needed anymore
-//            EViewModelHolder viewModelHolder = injectingElementHolder.getPluginHolder(new EViewModelHolder(injectingElementHolder));
-//            viewModelHolder.getOnClearedMethodBlock().add(observableGetterReference.invoke("removeObserver").arg(observerGetterInvoke)
-//            );
-//
-//        } else {
-//
-//            //It is assumed that a validation was done to ensure the user is aware of a "forever" observer
-//            //This validation should have been done in the ObserverHandler
-//            block.add(observableGetterReference.invoke("observeForever").arg(observerGetterInvoke));
-//
-//        }
-//
-//
-//    }
+
 
 }

@@ -19,9 +19,20 @@ import org.androidannotations.AndroidAnnotationsEnvironment;
 import org.androidannotations.ElementValidation;
 import org.androidannotations.handler.BaseAnnotationHandler;
 import org.androidannotations.holder.EComponentHolder;
+import pl.com.dspot.archiannotations.annotation.EBinder;
 import pl.com.dspot.archiannotations.annotation.Observer;
+import pl.com.dspot.archiannotations.holder.ObserverHolder;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
+
+import static org.androidannotations.helper.CanonicalNameConstants.VIEW;
+import static pl.com.dspot.archiannotations.ArchiCanonicalNameConstants.LIFECYCLE_OWNER;
+import static pl.com.dspot.archiannotations.ArchiCanonicalNameConstants.VIEW_MODEL;
+import static pl.com.dspot.archiannotations.util.ElementUtils.isSubtype;
 
 public class ObserverHandler extends BaseAnnotationHandler<EComponentHolder> {
 
@@ -31,80 +42,44 @@ public class ObserverHandler extends BaseAnnotationHandler<EComponentHolder> {
 
     @Override
     public void validate(Element element, ElementValidation validation) {
-//        validatorHelper.param.anyType().validate((ExecutableElement) element, validation);
-//
-//        Observer observer = adiHelper.getAnnotation(element, Observer.class);
-//
-//        if (!observer.observeForever()) {
-//            TypeElement rootElement = getRootElement(element);
-//            if (!isSubtype(rootElement, LIFECYCLE_OWNER, getProcessingEnvironment())
-//                    && !isSubtype(rootElement, VIEW_MODEL, getProcessingEnvironment())) {
-//                validation.addError("@Observer can be placed only inside classes which implement LifeCycleOwner or ViewModel, or should be marked with \"observerForever\"."
-//                                    + "\nIf you are aware of the consequences of observing another class forever, you can manually set \"observeForever = true\"");
-//            }
-//        }
-//
-//        validatorHelper.returnTypeIsVoidOrBoolean((ExecutableElement) element, validation);
+
+        if (element.getKind() == ElementKind.METHOD) {
+            validatorHelper.param.anyType().validate((ExecutableElement) element, validation);
+            validatorHelper.returnTypeIsVoidOrBoolean((ExecutableElement) element, validation);
+        }
+
+        Observer observer = element.getAnnotation(Observer.class);
+        if (!observer.observeForever()) {
+
+            Element rootElement = element.getEnclosingElement();
+            if (!isSubtype(rootElement, LIFECYCLE_OWNER, getProcessingEnvironment())
+                    && !isSubtype(rootElement, VIEW_MODEL, getProcessingEnvironment())) {
+                validation.addError("@Observer can be placed only inside classes which implement LifeCycleOwner or annotated with @EViewModel, or should be marked with \"observeForever\"."
+                                    + "\nIf you are aware of the consequences of observing another class forever, you can manually set \"observeForever = true\"");
+            }
+
+        }
+
+        validatorHelper.enclosingElementHasAnnotation(EBinder.class, element, validation);
 
     }
 
     @Override
     public void process(Element element, EComponentHolder holder) {
 
-//        ObserversHolder observersHolder = holder.getPluginHolder(new ObserversHolder(holder));
-//
-//        final String fieldName = element.getSimpleName().toString();
-//        final ExecutableElement executableElement = (ExecutableElement) element;
-//        final String observerName = observerNameFor(executableElement, codeModelHelper);
-//
-//        final List<? extends VariableElement> params = (executableElement).getParameters();
-//
-//        //Create get observer method
-//        {
-//            AbstractJClass Observer = getJClass(OBSERVER);
-//            AbstractJClass ReferencedClass = codeModelHelper.elementTypeToJClass(params.get(0));
-//
-//            //Create Observer field
-//            JFieldVar field = holder.getGeneratedClass().field(PRIVATE, Observer.narrow(ReferencedClass), observerName);
-//
-//            //Create Getter for this observer
-//            JMethod getterMethod = holder.getGeneratedClass().method(
-//                    JMod.PUBLIC,
-//                    Observer.narrow(ReferencedClass),
-//                    fieldToGetter(observerName)
-//            );
-//            JBlock creationBlock = getterMethod.body()._if(_this().ref(observerName).eqNull())._then();
-//
-//            JDefinedClass AnonymousObserver = getCodeModel().anonymousClass(Observer.narrow(ReferencedClass));
-//            JMethod anonymousOnChanged = AnonymousObserver.method(JMod.PUBLIC, getCodeModel().VOID, "onChanged");
-//            anonymousOnChanged.annotate(Override.class);
-//            JVar param = anonymousOnChanged.param(ReferencedClass, "value");
-//
-//            //Call this method
-//            if (executableElement.getReturnType().toString().equals("void")) {
-//                anonymousOnChanged.body().invoke(fieldName).arg(param);
-//            } else {
-//                //Check the boolean, its value determines if it is needed to unregister the observer
-//                JVar removeObserver = anonymousOnChanged.body().decl(getCodeModel().BOOLEAN, "removeObserver", invoke(fieldName).arg(param));
-//                JBlock removeObserverBlock = anonymousOnChanged.body()._if(removeObserver)._then();
-//                removeObserverBlock.invoke(observersHolder.getRemoveObserverMethod()).arg(_this());
-//            }
-//
-//            creationBlock.assign(field, _new(AnonymousObserver));
-//            getterMethod.body()._return(_this().ref(observerName));
-//        }
+        ObserverHolder observerHolder = holder.getPluginHolder(new ObserverHolder(holder));
 
+        TypeMirror typeMirror = getProcessingEnvironment().getTypeUtils().erasure(element.asType());
+        TypeElement viewTypeElement = annotationHelper.typeElementFromQualifiedName(typeMirror.toString());
+        if (viewTypeElement == null) {
+            return;
+        }
 
+        //Don't generate getters for views
+        if (isSubtype(viewTypeElement, VIEW, getProcessingEnvironment())) return;
+
+        observerHolder.getObserverMethodFor(element);
 
     }
-
-//    public static String observerNameFor(ExecutableElement element, APTCodeModelHelper codeModelHelper) {
-//
-//        final String fieldName = element.getSimpleName().toString();
-//        final List<? extends VariableElement> params = ((ExecutableElement) element).getParameters();
-//        AbstractJClass ReferencedClass = codeModelHelper.elementTypeToJClass(params.get(0)).erasure();
-//
-//        return "observerFor" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1) + "$" + ReferencedClass.name();
-//    }
 
 }

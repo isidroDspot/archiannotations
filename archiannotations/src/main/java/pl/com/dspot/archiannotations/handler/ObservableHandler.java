@@ -15,8 +15,10 @@
  */
 package pl.com.dspot.archiannotations.handler;
 
+import com.helger.jcodemodel.AbstractJClass;
 import com.helger.jcodemodel.JBlock;
 import com.helger.jcodemodel.JFieldRef;
+import com.helger.jcodemodel.JMethod;
 import org.androidannotations.AndroidAnnotationsEnvironment;
 import org.androidannotations.ElementValidation;
 import org.androidannotations.handler.BaseAnnotationHandler;
@@ -26,6 +28,11 @@ import pl.com.dspot.archiannotations.annotation.Observable;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+
+import static com.helger.jcodemodel.JExpr._new;
+import static com.helger.jcodemodel.JExpr._this;
+import static com.helger.jcodemodel.JMod.PUBLIC;
+import static pl.com.dspot.archiannotations.util.FormatUtils.fieldToGetter;
 
 public class ObservableHandler extends BaseAnnotationHandler<EComponentHolder> {
 
@@ -41,45 +48,45 @@ public class ObservableHandler extends BaseAnnotationHandler<EComponentHolder> {
     @Override
     public void process(Element element, EComponentHolder holder) {
 
-//        final String fieldName = element.getSimpleName().toString();
-//        JFieldRef fieldRef = _this().ref(element.getSimpleName().toString());
-//
-//        //Create the class if it wasn't initialized
-//        Observable observable = adiHelper.getAnnotation(element, Observable.class);
-//
-//        //Inject the class if normal constructor found
-//        if (observable.initialize() && !observable.lazyLoad()) {
-//            initializeInBlock(element, fieldRef, holder.getInitBodyInjectionBlock()._if(fieldRef.eqNull())._then());
-//        }
-//
-//        //Create Getter
-//        JMethod getterMethod = holder.getGeneratedClass().method(
-//                JMod.PUBLIC,
-//                codeModelHelper.elementTypeToJClass(element),
-//                fieldToGetter(fieldName)
-//        );
-//
-//        if (observable.lazyLoad()) {
-//            initializeInBlock(element, fieldRef, getterMethod.body()._if(fieldRef.eqNull())._then());
-//        }
-//
-//        getterMethod.body()._return(_this().ref(fieldName));
+        final String fieldName = element.getSimpleName().toString();
+        JFieldRef fieldRef = _this().ref(element.getSimpleName().toString());
+
+        //Create the class if it wasn't initialized
+        Observable observable = element.getAnnotation(Observable.class);
+
+        //Inject the class if normal constructor found
+        if (observable.initialize() && !observable.lazyLoad()) {
+            initializeInBlock(element, fieldRef, holder.getInitBodyInjectionBlock()._if(fieldRef.eqNull())._then());
+        }
+
+        //Create Getter
+        JMethod getterMethod = holder.getGeneratedClass().method(
+                PUBLIC,
+                codeModelHelper.typeMirrorToJClass(element.asType()),
+                fieldToGetter(fieldName)
+        );
+
+        if (observable.lazyLoad()) {
+            initializeInBlock(element, fieldRef, getterMethod.body()._if(fieldRef.eqNull())._then());
+        }
+
+        getterMethod.body()._return(_this().ref(fieldName));
 
     }
 
     private void initializeInBlock(Element element, JFieldRef fieldRef, JBlock block) {
 
-//        String liveDataClassName = element.asType().toString();
-//        if (liveDataClassName.contains("<")) {
-//            liveDataClassName = liveDataClassName.substring(0, liveDataClassName.indexOf("<"));
-//        }
-//
-//        TypeElement typeElement = getProcessingEnvironment().getElementUtils().getTypeElement(liveDataClassName);
-//
-//        if (canBeInitialized(typeElement)) {
-//            AbstractJClass LiveData = codeModelHelper.elementTypeToJClass(element);
-//            block.assign(fieldRef, _new(LiveData));
-//        }
+        String liveDataClassName = element.asType().toString();
+        if (liveDataClassName.contains("<")) {
+            liveDataClassName = liveDataClassName.substring(0, liveDataClassName.indexOf("<"));
+        }
+
+        TypeElement typeElement = getProcessingEnvironment().getElementUtils().getTypeElement(liveDataClassName);
+
+        if (canBeInitialized(typeElement)) {
+            AbstractJClass LiveData = codeModelHelper.typeMirrorToJClass(element.asType());
+            block.assign(fieldRef, _new(LiveData));
+        }
     }
 
     private boolean canBeInitialized(TypeElement typeElement) {

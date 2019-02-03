@@ -36,11 +36,12 @@ public class ArchiannotationsPlugin extends AndroidAnnotationsPlugin {
         List<AnnotationHandler<?>> handlers = new LinkedList<>();
 
         handlers.add(new EViewModelHandler(androidAnnotationEnv));
+        handlers.add(new EBinderHandler(androidAnnotationEnv));
+        handlers.add(new EViewPresenterHandler(androidAnnotationEnv));
 
         handlers.add(new ObservableHandler(androidAnnotationEnv));
         handlers.add(new ObserverHandler(androidAnnotationEnv));
 
-        handlers.add(new EViewPresenterHandler(androidAnnotationEnv));
         handlers.add(new PresenterMethodHandler(androidAnnotationEnv));
 
         handlers.add(new ViewModelHandler(androidAnnotationEnv));
