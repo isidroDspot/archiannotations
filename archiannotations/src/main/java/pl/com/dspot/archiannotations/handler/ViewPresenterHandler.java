@@ -75,7 +75,7 @@ public class ViewPresenterHandler extends ObserversLinkingHandler<EComponentWith
     }
 
     @Override
-    public JBlock getInvocationBlock(EComponentWithViewSupportHolder holder) {
+    public JBlock getInvocationBlock(Element element, EComponentWithViewSupportHolder holder) {
 
 //        if (holder instanceof EActivityHolder && !isViewPresenter(element)) {
 //            return getBlockAfterSuperCall((EActivityHolder) holder);

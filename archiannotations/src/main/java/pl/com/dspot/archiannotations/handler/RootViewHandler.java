@@ -52,7 +52,7 @@ public class RootViewHandler extends BaseAnnotationHandler<EBeanHolder>implement
     }
 
     @Override
-    public JBlock getInvocationBlock(EBeanHolder holder) {
+    public JBlock getInvocationBlock(Element element, EBeanHolder holder) {
         return holder.getInitBodyInjectionBlock();
     }
 

@@ -94,7 +94,7 @@ public class ViewModelHandler extends BaseAnnotationHandler<EComponentWithViewSu
     }
 
     @Override
-    public JBlock getInvocationBlock(EComponentWithViewSupportHolder holder) {
+    public JBlock getInvocationBlock(Element element, EComponentWithViewSupportHolder holder) {
 
         if (holder instanceof EActivityHolder) {
             return getBlockAfterSuperCall((EActivityHolder) holder);

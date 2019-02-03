@@ -6,26 +6,26 @@
 
     <parent>
         <groupId>pl.com.dspot</groupId>
-        <artifactId>archiannotations-parent</artifactId>
+        <artifactId>archiannotations-declex-parent</artifactId>
         <version>0.1</version>
     </parent>
 
-    <artifactId>archiannotations-api</artifactId>
+    <artifactId>archiannotations-declex-api</artifactId>
     <name>Archiannotations API</name>
     <description>Architecture Components Annotations API for Android</description>
 
     <dependencies>
 
         <dependency>
-            <groupId>org.androidannotations</groupId>
-            <artifactId>androidannotations-api</artifactId>
+            <groupId>com.dspot</groupId>
+            <artifactId>declex-api</artifactId>
         </dependency>
 
     </dependencies>
 
 	<build>
 
-        <finalName>archiannotations-api-${project.version}</finalName>
+        <finalName>archiannotations-declex-api-${project.version}</finalName>
 
         <pluginManagement>
             <plugins>

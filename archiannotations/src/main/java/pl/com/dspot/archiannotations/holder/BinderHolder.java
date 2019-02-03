@@ -236,7 +236,7 @@ public class BinderHolder extends PluginClassHolder<EComponentWithViewSupportHol
 		//Register the observer
 		JBlock block;
 		if (holder() instanceof MethodInjectionHandler) {
-			block = ((MethodInjectionHandler) this).getInvocationBlock(holder());
+			block = ((MethodInjectionHandler) this).getInvocationBlock(element, holder());
 		} else {
 			block = holder().getInitBodyAfterInjectionBlock();
 		}
