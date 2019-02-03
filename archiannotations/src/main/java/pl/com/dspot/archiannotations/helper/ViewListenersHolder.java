@@ -15,25 +15,10 @@
  */
 package pl.com.dspot.archiannotations.helper;
 
-import com.helger.jcodemodel.*;
 import org.androidannotations.AndroidAnnotationsEnvironment;
 import org.androidannotations.helper.APTCodeModelHelper;
-import org.androidannotations.holder.EComponentWithViewSupportHolder;
 import org.androidannotations.logger.Logger;
 import org.androidannotations.logger.LoggerFactory;
-import org.androidannotations.rclass.IRClass;
-import org.androidannotations.rclass.IRInnerClass;
-import pl.com.dspot.archiannotations.annotation.listener.Listen;
-
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.*;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.TypeMirror;
-import java.util.*;
-
-import static com.helger.jcodemodel.JExpr.*;
-import static javax.lang.model.element.ElementKind.METHOD;
-import static org.androidannotations.helper.ModelConstants.generationSuffix;
 
 public class ViewListenersHolder {
 

@@ -22,27 +22,38 @@ import com.helger.jcodemodel.JMethod;
 import org.androidannotations.AndroidAnnotationsEnvironment;
 import org.androidannotations.ElementValidation;
 import org.androidannotations.handler.BaseAnnotationHandler;
+import org.androidannotations.helper.ModelConstants;
 import org.androidannotations.holder.EComponentHolder;
 import pl.com.dspot.archiannotations.annotation.Observable;
+import pl.com.dspot.archiannotations.helper.CompilationTreeHelper;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
 
 import static com.helger.jcodemodel.JExpr._new;
 import static com.helger.jcodemodel.JExpr._this;
 import static com.helger.jcodemodel.JMod.PUBLIC;
+import static org.androidannotations.helper.ModelConstants.generationSuffix;
+import static pl.com.dspot.archiannotations.ArchiCanonicalNameConstants.LIVE_DATA;
+import static pl.com.dspot.archiannotations.util.ElementUtils.isSubtype;
 import static pl.com.dspot.archiannotations.util.FormatUtils.fieldToGetter;
 
 public class ObservableHandler extends BaseAnnotationHandler<EComponentHolder> {
 
+    private final CompilationTreeHelper compilationTreeHelper;
+
     public ObservableHandler(AndroidAnnotationsEnvironment environment) {
         super(Observable.class, environment);
+        this.compilationTreeHelper = new CompilationTreeHelper(environment);
     }
 
     @Override
     public void validate(Element element, ElementValidation validation) {
-
+        if (!isSubtype(element, LIVE_DATA, getProcessingEnvironment())) {
+            validation.addError("%s can only be used on an element that extends " + LIVE_DATA);
+        }
     }
 
     @Override
@@ -60,11 +71,8 @@ public class ObservableHandler extends BaseAnnotationHandler<EComponentHolder> {
         }
 
         //Create Getter
-        JMethod getterMethod = holder.getGeneratedClass().method(
-                PUBLIC,
-                codeModelHelper.typeMirrorToJClass(element.asType()),
-                fieldToGetter(fieldName)
-        );
+        AbstractJClass LiveData = liveDataTypeOf(element);
+        JMethod getterMethod = holder.getGeneratedClass().method(PUBLIC, LiveData, fieldToGetter(fieldName));
 
         if (observable.lazyLoad()) {
             initializeInBlock(element, fieldRef, getterMethod.body()._if(fieldRef.eqNull())._then());
@@ -84,7 +92,7 @@ public class ObservableHandler extends BaseAnnotationHandler<EComponentHolder> {
         TypeElement typeElement = getProcessingEnvironment().getElementUtils().getTypeElement(liveDataClassName);
 
         if (canBeInitialized(typeElement)) {
-            AbstractJClass LiveData = codeModelHelper.typeMirrorToJClass(element.asType());
+            AbstractJClass LiveData = liveDataTypeOf(element);
             block.assign(fieldRef, _new(LiveData));
         }
     }
@@ -92,6 +100,23 @@ public class ObservableHandler extends BaseAnnotationHandler<EComponentHolder> {
     private boolean canBeInitialized(TypeElement typeElement) {
         if (typeElement.getModifiers().contains(Modifier.ABSTRACT)) return false;
         return true;
+    }
+
+    private AbstractJClass liveDataTypeOf(Element element) {
+
+        String liveDataClassName = element.asType().toString();
+
+        if (liveDataClassName.contains("<")) {
+            String liveDataTypeName = liveDataClassName.substring(liveDataClassName.indexOf("<") + 1, liveDataClassName.length() - 1);
+            liveDataClassName = liveDataClassName.substring(0, liveDataClassName.indexOf("<"));
+            liveDataTypeName = compilationTreeHelper.getClassNameFromCompilationUnitImports(liveDataTypeName, element);
+
+            return getJClass(liveDataClassName).narrow(getJClass(liveDataTypeName));
+        }
+
+        //TODO
+        throw new IllegalStateException("State not supported");
+
     }
 
 }
