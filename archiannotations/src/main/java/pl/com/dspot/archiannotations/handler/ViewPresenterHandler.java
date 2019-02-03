@@ -19,11 +19,9 @@ import com.helger.jcodemodel.*;
 import org.androidannotations.AndroidAnnotationsEnvironment;
 import org.androidannotations.ElementValidation;
 import org.androidannotations.handler.MethodInjectionHandler;
-import org.androidannotations.helper.InjectHelper;
 import org.androidannotations.holder.EActivityHolder;
 import org.androidannotations.holder.EComponentWithViewSupportHolder;
 import pl.com.dspot.archiannotations.annotation.ViewModel;
-import pl.com.dspot.archiannotations.helper.ViewsLinkingListenersHelper;
 
 import javax.lang.model.element.Element;
 import java.io.StringWriter;

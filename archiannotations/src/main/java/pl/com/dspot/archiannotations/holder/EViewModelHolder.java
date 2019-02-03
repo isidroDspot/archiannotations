@@ -39,7 +39,6 @@ public class EViewModelHolder extends PluginClassHolder<EBeanHolder> {
 	private JBlock onClearedMethodFinalBlock;
 
 	private JFieldVar rootViewField;
-	private JFieldVar contextField;
 
 	private JMethod bindToMethod;
 
@@ -49,7 +48,7 @@ public class EViewModelHolder extends PluginClassHolder<EBeanHolder> {
 
 	public void setEmptyConstructor() {
 		//The View Models needs to have an empty constructor
-		constructor = holder().getGeneratedClass().constructor(PRIVATE);
+		constructor = holder().getGeneratedClass().constructor(PUBLIC);
 		JBlock constructorBody = constructor.body();
 		constructorBody.invoke("super");
 	}

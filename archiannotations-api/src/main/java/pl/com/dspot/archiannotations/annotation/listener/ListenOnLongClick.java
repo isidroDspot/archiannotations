@@ -22,10 +22,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Listen(listeners = "OnClickListener", validEndings = {"Click", "Clicked", "Tap", "Tapped"})
+@Listen(listeners = "OnLongClickListener -> return true;", validEndings = {"LongClick", "LongClicked", "LongTap", "LongTapped"})
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.METHOD)
-public @interface ListenClick {
+public @interface ListenOnLongClick {
 
     /**
      * The R.id.* fields which refer to the Views.

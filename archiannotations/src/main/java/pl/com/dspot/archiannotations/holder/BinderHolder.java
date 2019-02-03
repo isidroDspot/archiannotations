@@ -24,6 +24,8 @@ import org.androidannotations.helper.IdAnnotationHelper;
 import org.androidannotations.holder.EBeanHolder;
 import org.androidannotations.holder.EComponentWithViewSupportHolder;
 import org.androidannotations.holder.FoundViewHolder;
+import org.androidannotations.logger.Logger;
+import org.androidannotations.logger.LoggerFactory;
 import org.androidannotations.plugin.PluginClassHolder;
 import org.androidannotations.rclass.IRClass;
 import pl.com.dspot.archiannotations.annotation.Observable;
@@ -49,6 +51,8 @@ import static pl.com.dspot.archiannotations.util.ElementUtils.isSubtype;
 import static pl.com.dspot.archiannotations.util.FormatUtils.fieldToGetter;
 
 public class BinderHolder extends PluginClassHolder<EComponentWithViewSupportHolder> {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(BinderHolder.class);
 
 	private Map<VariableElement, IJExpression> observableFieldInvocations = new HashMap<>();
 
@@ -104,33 +108,29 @@ public class BinderHolder extends PluginClassHolder<EComponentWithViewSupportHol
 			if (observer != null) {
 
 				if (field.asType().getKind().isPrimitive()) {
-					bindObserver(field);
-				} else {
 
-					TypeElement viewTypeElement = annotationHelper.typeElementFromQualifiedName(field.asType().toString());
-					if (viewTypeElement == null) {
-						return;
+					if (!bindObserver(field)) {
+						LOGGER.warn(field, "@Observer not resolved");
 					}
 
-					//If the element is a View class
-					if (isSubtype(viewTypeElement, VIEW, environment().getProcessingEnvironment())) {
+				} else if (isSubtype(field.asType(), VIEW, environment().getProcessingEnvironment())) {
 
-						JFieldRef idRef = annotationHelper.extractOneAnnotationFieldRef(field, IRClass.Res.ID, true);
-						AbstractJClass viewClass = codeModelHelper.typeMirrorToJClass(field.asType());
+					JFieldRef idRef = annotationHelper.extractOneAnnotationFieldRef(field, IRClass.Res.ID, true);
+					AbstractJClass viewClass = codeModelHelper.typeMirrorToJClass(field.asType());
 
-						//Create the view reference
-						JFieldRef viewHolderTarget = ref(field.getSimpleName().toString());
-						FoundViewHolder viewHolder = holder().getFoundViewHolder(idRef, viewClass, viewHolderTarget);
-						if (!viewHolder.getRef().equals(viewHolderTarget)) {
-							holder().getOnViewChangedBodyInjectionBlock().add(viewHolderTarget.assign(viewHolder.getOrCastRef(viewClass)));
-						}
-
-						bindObservablesToView(field, viewTypeElement);
-
-					} else {
-						bindObserver(field);
+					//Create the view reference
+					JFieldRef viewHolderTarget = ref(field.getSimpleName().toString());
+					FoundViewHolder viewHolder = holder().getFoundViewHolder(idRef, viewClass, viewHolderTarget);
+					if (!viewHolder.getRef().equals(viewHolderTarget)) {
+						holder().getOnViewChangedBodyInjectionBlock().add(viewHolderTarget.assign(viewHolder.getOrCastRef(viewClass)));
 					}
 
+					if (!bindObservablesToView(field, field.asType())) {
+						LOGGER.warn(field, "@Observer not resolved");
+					}
+
+				} else if (!bindObserver(field)) {
+					LOGGER.warn(field, "@Observer not resolved");
 				}
 
 			}
@@ -142,16 +142,19 @@ public class BinderHolder extends PluginClassHolder<EComponentWithViewSupportHol
 
 			Observer observer = method.getAnnotation(Observer.class);
 			if (observer != null) {
-				bindObserver(method);
+				if (!bindObserver(method)) {
+					LOGGER.warn(method, "@Observer not resolved");
+				}
 			}
 
 		}
 
 	}
 
-	private void bindObservablesToView(Element element, TypeElement viewTypeElement) {
+	private boolean bindObservablesToView(Element element, TypeMirror viewType) {
 
 		final String viewReference = element.getSimpleName().toString();
+		boolean bound = false;
 
 		for (VariableElement observableField : observableFieldInvocations.keySet()) {
 
@@ -161,7 +164,7 @@ public class BinderHolder extends PluginClassHolder<EComponentWithViewSupportHol
 
 				if (observableName.equals(viewReference)) {
 					//Bind by the default property
-					bindViewObserver(viewReference, viewTypeElement, null,
+					bound |= bindViewObserver(viewReference, viewType, null,
 							observableField, observableFieldInvocations.get(observableField),
 							element);
 					continue;
@@ -198,8 +201,8 @@ public class BinderHolder extends PluginClassHolder<EComponentWithViewSupportHol
 
 						if (hasSetter) {
 
-							bindViewObserver(
-									viewReference, viewTypeElement, propertyName,
+							bound |= bindViewObserver(
+									viewReference, viewType, propertyName,
 									observableField, observableFieldInvocations.get(observableField),
 									element);
 						}
@@ -211,25 +214,30 @@ public class BinderHolder extends PluginClassHolder<EComponentWithViewSupportHol
 
 		}
 
+		return bound;
+
 	}
 
-	private void bindObserver(Element element) {
+	private boolean bindObserver(Element element) {
 
 		final String observerReference = element.getSimpleName().toString();
+		boolean bound = false;
 
 		for (VariableElement observableField : observableFieldInvocations.keySet()) {
 
 			final String observableName = observableField.getSimpleName().toString();
 
 			if (observableName.equals(observerReference)) {
-				bindObserver(element, observableFieldInvocations.get(observableField));
+				bound |= bindObserver(element, observableFieldInvocations.get(observableField));
 			}
 
 		}
 
+		return  bound;
+
 	}
 
-	private void bindObserver(Element element, IJExpression observableInvocation) {
+	private boolean bindObserver(Element element, IJExpression observableInvocation) {
 
 		IJExpression observerGetMethod = invoke(observerHolder.getObserverMethodFor(element));
 
@@ -258,9 +266,12 @@ public class BinderHolder extends PluginClassHolder<EComponentWithViewSupportHol
 			block.add(observableInvocation.invoke("observeForever").arg(observerGetMethod));
 
 		}
+
+		return true;
+
 	}
 
-	private void bindViewObserver(String viewReference, TypeElement viewTypeElement, String propertyName,
+	private boolean bindViewObserver(String viewReference, TypeMirror viewType, String propertyName,
 								  VariableElement observableField, IJExpression observableInvocation,
 								  Element element) {
 
@@ -279,14 +290,16 @@ public class BinderHolder extends PluginClassHolder<EComponentWithViewSupportHol
 		JVar observerParam = observerHolder.getObserverMethodParamFor(
 				element, propertyName ==  null? "Default" : propertyName, observableClass);
 
-		assignProperty(viewReference, viewTypeElement, propertyName, observableField, observerParam, observerBody);
+		assignProperty(viewReference, viewType, propertyName, observableField, observerParam, observerBody);
 
 		JBlock block = holder().getOnViewChangedBodyAfterInjectionBlock();
 		block.add(observableInvocation.invoke("observe").arg(_this()).arg(invoke(observerMethod)));
 
+		return true;
+
 	}
 
-	private void assignProperty(String viewReference, TypeElement viewTypeElement, String propertyName,
+	private void assignProperty(String viewReference, TypeMirror viewType, String propertyName,
 								VariableElement observableField, JVar param, JBlock block) {
 
 		String observableClassName = observableField.asType().toString();
@@ -302,7 +315,7 @@ public class BinderHolder extends PluginClassHolder<EComponentWithViewSupportHol
 		if (propertyName == null) {
 
 			//CompoundButtons, if the param is boolean, it will set the checked state
-			if (isSubtype(viewTypeElement, COMPOUND_BUTTON, environment().getProcessingEnvironment())) {
+			if (isSubtype(viewType, COMPOUND_BUTTON, environment().getProcessingEnvironment())) {
 				if (observableClassName.equals("boolean") || observableClassName.equals(BOOLEAN)) {
 					block.invoke(viewRef, "setChecked").arg(param);
 
@@ -311,7 +324,7 @@ public class BinderHolder extends PluginClassHolder<EComponentWithViewSupportHol
 				}
 			}
 
-			if (isSubtype(viewTypeElement, TEXT_VIEW, environment().getProcessingEnvironment())) {
+			if (isSubtype(viewType, TEXT_VIEW, environment().getProcessingEnvironment())) {
 				if (isSubtype(observableTypeElement, "android.text.Spanned", environment().getProcessingEnvironment())) {
 					block.invoke(viewRef, "setText").arg(param);
 				} else if (isSubtype(observableTypeElement, CHAR_SEQUENCE, environment().getProcessingEnvironment())) {

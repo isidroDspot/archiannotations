@@ -15,21 +15,39 @@
  */
 package pl.com.dspot.archiannotations.helper;
 
+import com.helger.jcodemodel.*;
 import org.androidannotations.AndroidAnnotationsEnvironment;
+import org.androidannotations.helper.APTCodeModelHelper;
+import org.androidannotations.holder.EComponentWithViewSupportHolder;
+import org.androidannotations.logger.Logger;
+import org.androidannotations.logger.LoggerFactory;
+import org.androidannotations.rclass.IRClass;
+import org.androidannotations.rclass.IRInnerClass;
+import pl.com.dspot.archiannotations.annotation.listener.Listen;
 
-public class ViewsLinkingListenersHelper {
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.*;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeMirror;
+import java.util.*;
 
-//    private static final Logger LOGGER = LoggerFactory.getLogger(DeclexProcessor.class);
-//
-//    private final AndroidAnnotationsEnvironment environment;
-//
-//    private final APTCodeModelHelper codeModelHelper;
-//
-    public ViewsLinkingListenersHelper(AndroidAnnotationsEnvironment environment) {
-//        this.environment = environment;
-//        codeModelHelper = new APTCodeModelHelper(environment);
+import static com.helger.jcodemodel.JExpr.*;
+import static javax.lang.model.element.ElementKind.METHOD;
+import static org.androidannotations.helper.ModelConstants.generationSuffix;
+
+public class ViewListenersHolder {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ViewListenersHolder.class);
+
+    private final AndroidAnnotationsEnvironment environment;
+
+    private final APTCodeModelHelper codeModelHelper;
+
+    public ViewListenersHolder(AndroidAnnotationsEnvironment environment) {
+        this.environment = environment;
+        codeModelHelper = new APTCodeModelHelper(environment);
     }
-//
+
 //    public void process(String generatorClassName, Element injectingElement, AbstractJClass injectingEnhancedClass,
 //                        EComponentWithViewSupportHolder injectingElementHolder) {
 //
@@ -215,13 +233,13 @@ public class ViewsLinkingListenersHelper {
 //
 //        System.out.println("DD::Found " + listenersSettersWithOptions);
 //
-//        instantiateListenersAndLink(listenersSettersWithOptions, layoutObject, listenerElement, injectingElement, injectingElementHolder);
+//        instantiateListenersAndBindView(listenersSettersWithOptions, layoutObject, listenerElement, injectingElement, injectingElementHolder);
 //
 //    }
 //
-//    private void instantiateListenersAndLink(Map<ExecutableElement, String> listenersSettersWithOptions, LayoutsParser.LayoutObject layoutObject,
-//                                             ExecutableElement listenerElement, Element injectingElement,
-//                                             EComponentWithViewSupportHolder injectingElementHolder) {
+//    private void instantiateListenersAndBindView(Map<ExecutableElement, String> listenersSettersWithOptions, LayoutsParser.LayoutObject layoutObject,
+//                                                 ExecutableElement listenerElement, Element injectingElement,
+//                                                 EComponentWithViewSupportHolder injectingElementHolder) {
 //
 //        final ViewsHolder viewsHolder = injectingElementHolder.getPluginHolder(new ViewsHolder(injectingElementHolder));
 //        final JFieldRef view = viewsHolder.createAndAssignView(layoutObject.id);
@@ -243,7 +261,7 @@ public class ViewsLinkingListenersHelper {
 //            }
 //
 //            IJExpression injectingField;
-//            if (injectingElement.asType().toString().endsWith(ModelConstants.generationSuffix())) {
+//            if (injectingElement.asType().toString().endsWith(generationSuffix())) {
 //                injectingField = ref(injectingElement.getSimpleName().toString());
 //            } else {
 //                injectingField = cast(getJClass(getGeneratedClassName(injectingElement, environment)), ref(injectingElement.getSimpleName().toString()));

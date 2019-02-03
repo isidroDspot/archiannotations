@@ -20,48 +20,47 @@ import com.helger.jcodemodel.JMethod;
 import com.helger.jcodemodel.JVar;
 import org.androidannotations.holder.EBeanHolder;
 import org.androidannotations.holder.EComponentHolder;
-import org.androidannotations.internal.process.ProcessHolder;
 import org.androidannotations.plugin.PluginClassHolder;
 
 import static com.helger.jcodemodel.JMod.PRIVATE;
 import static com.helger.jcodemodel.JMod.PUBLIC;
 
-public class BaseArchitecturalHolder extends EComponentHolder<EComponentHolder>  {
+public class BaseArchitecturalHolder extends PluginClassHolder<EComponentHolder>  {
 
-    public static String REBIND_NAME = "rebind";
-
-    private JFieldVar rootViewField;
-    private JMethod rebindMethod;
-
-    private JMethod constructorMethod;
+//    public static String REBIND_NAME = "rebind";
+//
+//    private JFieldVar rootViewField;
+//    private JMethod rebindMethod;
+//
+//    private JMethod constructorMethod;
 
     public BaseArchitecturalHolder(EComponentHolder holder) {
         super(holder);
     }
-
-    public JFieldVar getRootViewField() {
-        if (rootViewField == null) {
-            setRebind();
-        }
-        return rootViewField;
-    }
-
-    public JMethod getRebindMethod() {
-        if (rebindMethod == null) {
-            setRebind();
-        }
-        return rebindMethod;
-    }
-
-    public JMethod getConstructorMethod() {
-        if (constructorMethod == null) {
-            setConstructor();
-        }
-        return constructorMethod;
-    }
-
-    private void setRebind() {
-
+//
+//    public JFieldVar getRootViewField() {
+//        if (rootViewField == null) {
+//            setRebind();
+//        }
+//        return rootViewField;
+//    }
+//
+//    public JMethod getRebindMethod() {
+//        if (rebindMethod == null) {
+//            setRebind();
+//        }
+//        return rebindMethod;
+//    }
+//
+//    public JMethod getConstructorMethod() {
+//        if (constructorMethod == null) {
+//            setConstructor();
+//        }
+//        return constructorMethod;
+//    }
+//
+//    private void setRebind() {
+//
 //        //Create rootView field
 //        rootViewField = holder().getGeneratedClass().field(PRIVATE, getClasses().OBJECT, "rootView_");
 //
@@ -74,16 +73,12 @@ public class BaseArchitecturalHolder extends EComponentHolder<EComponentHolder> 
 //        if (holder() instanceof EBeanHolder) {
 //            rebindMethod.body().invoke("rebind").arg(context);
 //        }
-
-    }
-
-    private void setConstructor() {
-        //Create a zero argument constructor
-        constructorMethod = holder().getGeneratedClass().constructor(PUBLIC);
-    }
-
-    public ProcessHolder.Classes getClasses() {
-        return environment().getClasses();
-    }
+//
+//    }
+//
+//    private void setConstructor() {
+//        //Create a zero argument constructor
+//        constructorMethod = holder().getGeneratedClass().constructor(PUBLIC);
+//    }
 
 }

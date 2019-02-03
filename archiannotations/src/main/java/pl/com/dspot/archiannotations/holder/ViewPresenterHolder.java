@@ -25,84 +25,84 @@ import static com.helger.jcodemodel.JMod.PRIVATE;
 
 public class ViewPresenterHolder extends BaseArchitecturalHolder {
 
-	public static final String PERFORM_METHOD_CALL_NAME = "performMethodCall";
-
-	private JFieldVar presenterLiveDataField;
-	private JMethod performMethodCallMethod;
-	private JBlock performMethodCallBlock;
-	private JVar performMethodCallField;
-
-	private JFieldVar presenterLiveDataObserverField;
+//	public static final String PERFORM_METHOD_CALL_NAME = "performMethodCall";
+//
+//	private JFieldVar presenterLiveDataField;
+//	private JMethod performMethodCallMethod;
+//	private JBlock performMethodCallBlock;
+//	private JVar performMethodCallField;
+//
+//	private JFieldVar presenterLiveDataObserverField;
 
 	public ViewPresenterHolder(EComponentHolder holder) {
 		super(holder);
 	}
 
-	public JFieldVar getPresenterLiveDataField() {
-		if (presenterLiveDataField == null) {
-			setPresenterLiveData();
-		}
-		return presenterLiveDataField;
-	}
-
-	public JBlock getPerformMethodCallBlock() {
-		if (performMethodCallBlock == null) {
-			setPerformMethodCall();
-		}
-		return performMethodCallBlock;
-	}
-
-	public JVar getPerformMethodCallField() {
-		if (performMethodCallField == null) {
-			setPerformMethodCall();
-		}
-		return performMethodCallField;
-	}
-
-	private void setPresenterLiveData() {
-		AbstractJClass SingleLiveEvent = getJClass(SINGLE_LIVE_EVENT);
-
-		//Create the Presenter LiveData field
-		presenterLiveDataField = holder().getGeneratedClass().field(PRIVATE, SingleLiveEvent.narrow(MethodCall.class), "presenterLiveData_");
-
-		//Create the live data object
-		holder().getInitBodyInjectionBlock().assign(presenterLiveDataField, _new(SingleLiveEvent));
-
-	}
-
-	private void setPerformMethodCall() {
-		performMethodCallMethod = holder()
-				.getGeneratedClass().method(PRIVATE, getCodeModel().VOID, PERFORM_METHOD_CALL_NAME);
-
-		performMethodCallField = performMethodCallMethod.param(getJClass(MethodCall.class), "methodCall");
-
-		performMethodCallBlock = performMethodCallMethod.body();
-
-		setViewPresenterObserver();
-	}
-
-	private void setViewPresenterObserver() {
-
-		final AbstractJClass Observer = getJClass(OBSERVER);
-		final AbstractJClass MethodCall = getJClass(pl.com.dspot.archiannotations.api.MethodCall.class);
-
-		//Create Observer field
-		presenterLiveDataObserverField = holder().getGeneratedClass().field(PRIVATE, Observer.narrow(MethodCall), "presenterLiveDataObserver_");
-
-		JDefinedClass AnonymousObserver = getCodeModel().anonymousClass(Observer.narrow(MethodCall));
-		JMethod anonymousOnChanged = AnonymousObserver.method(JMod.PUBLIC, getCodeModel().VOID, "onChanged");
-		anonymousOnChanged.annotate(Override.class);
-		JVar param = anonymousOnChanged.param(MethodCall, "value");
-
-		//Call this method
-		anonymousOnChanged.body().invoke(performMethodCallMethod).arg(param);
-
-		holder().getInitBodyInjectionBlock().assign(presenterLiveDataObserverField, _new(AnonymousObserver));
-
-		holder().getInitBodyAfterInjectionBlock()
-				.invoke(getPresenterLiveDataField(), "observe")
-				.arg(cast(getJClass(LIFECYCLE_OWNER), getRootViewField())).arg(presenterLiveDataObserverField);
-
-	}
+//	public JFieldVar getPresenterLiveDataField() {
+//		if (presenterLiveDataField == null) {
+//			setPresenterLiveData();
+//		}
+//		return presenterLiveDataField;
+//	}
+//
+//	public JBlock getPerformMethodCallBlock() {
+//		if (performMethodCallBlock == null) {
+//			setPerformMethodCall();
+//		}
+//		return performMethodCallBlock;
+//	}
+//
+//	public JVar getPerformMethodCallField() {
+//		if (performMethodCallField == null) {
+//			setPerformMethodCall();
+//		}
+//		return performMethodCallField;
+//	}
+//
+//	private void setPresenterLiveData() {
+//		AbstractJClass SingleLiveEvent = getJClass(SINGLE_LIVE_EVENT);
+//
+//		//Create the Presenter LiveData field
+//		presenterLiveDataField = holder().getGeneratedClass().field(PRIVATE, SingleLiveEvent.narrow(MethodCall.class), "presenterLiveData_");
+//
+//		//Create the live data object
+//		holder().getInitBodyInjectionBlock().assign(presenterLiveDataField, _new(SingleLiveEvent));
+//
+//	}
+//
+//	private void setPerformMethodCall() {
+//		performMethodCallMethod = holder()
+//				.getGeneratedClass().method(PRIVATE, getCodeModel().VOID, PERFORM_METHOD_CALL_NAME);
+//
+//		performMethodCallField = performMethodCallMethod.param(getJClass(MethodCall.class), "methodCall");
+//
+//		performMethodCallBlock = performMethodCallMethod.body();
+//
+//		setViewPresenterObserver();
+//	}
+//
+//	private void setViewPresenterObserver() {
+//
+//		final AbstractJClass Observer = getJClass(OBSERVER);
+//		final AbstractJClass MethodCall = getJClass(pl.com.dspot.archiannotations.api.MethodCall.class);
+//
+//		//Create Observer field
+//		presenterLiveDataObserverField = holder().getGeneratedClass().field(PRIVATE, Observer.narrow(MethodCall), "presenterLiveDataObserver_");
+//
+//		JDefinedClass AnonymousObserver = getCodeModel().anonymousClass(Observer.narrow(MethodCall));
+//		JMethod anonymousOnChanged = AnonymousObserver.method(JMod.PUBLIC, getCodeModel().VOID, "onChanged");
+//		anonymousOnChanged.annotate(Override.class);
+//		JVar param = anonymousOnChanged.param(MethodCall, "value");
+//
+//		//Call this method
+//		anonymousOnChanged.body().invoke(performMethodCallMethod).arg(param);
+//
+//		holder().getInitBodyInjectionBlock().assign(presenterLiveDataObserverField, _new(AnonymousObserver));
+//
+//		holder().getInitBodyAfterInjectionBlock()
+//				.invoke(getPresenterLiveDataField(), "observe")
+//				.arg(cast(getJClass(LIFECYCLE_OWNER), getRootViewField())).arg(presenterLiveDataObserverField);
+//
+//	}
 
 }

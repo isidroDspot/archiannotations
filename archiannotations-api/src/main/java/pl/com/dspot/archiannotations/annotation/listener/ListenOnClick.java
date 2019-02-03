@@ -22,10 +22,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Listen(listeners = "OnCheckedChangedListener", validEndings = {"Checked", "CheckedChange"})
+@Listen(listeners = "OnClickListener", validEndings = {"Click", "Clicked", "Tap", "Tapped"})
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.METHOD)
-public @interface ListenCheckedChanged {
+public @interface ListenOnClick {
 
     /**
      * The R.id.* fields which refer to the Views.

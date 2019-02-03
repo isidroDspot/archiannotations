@@ -13,22 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dspot.declex.architecture.annotation;
+package pl.com.dspot.archiannotations.annotation.listener;
 
-import org.androidannotations.annotations.export.Import;
+import org.androidannotations.annotations.ResId;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Import
+@Listen(listeners = "OnCheckedChangedListener", validEndings = {"Checked", "CheckedChange"})
 @Retention(RetentionPolicy.CLASS)
-@Target(ElementType.FIELD)
-public @interface ViewPresenter {
+@Target(ElementType.METHOD)
+public @interface ListenOnCheckedChanged {
 
-    Scope scope() default Scope.Default;
+    /**
+     * The R.id.* fields which refer to the Views.
+     *
+     * @return the ids of the Views
+     */
+    int[] value() default ResId.DEFAULT_VALUE;
 
-    enum Scope {Default, Activity}
+    /**
+     * The resource names as strings which refer to the Views.
+     *
+     * @return the resource names of the Views
+     */
+    String[] resName() default {};
 
 }
