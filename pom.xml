@@ -50,11 +50,11 @@
     <modules>
         <module>archiannotations</module>
         <module>archiannotations-api</module>
-        <!--<module>../_public</module>-->
+        <module>../_public</module>
     </modules>
 
     <properties>
-        <declex.version>2.0.a.27</declex.version>
+        <declex.version>2.0.a.28</declex.version>
     </properties>
 
     <repositories>
