@@ -15,13 +15,24 @@
  */
 package pl.com.dspot.archiannotations.holder;
 
+import com.dspot.declex.annotation.Event;
+import com.dspot.declex.annotation.OnEvent;
+import com.dspot.declex.annotation.UpdateOnEvent;
+import com.dspot.declex.holder.EventHolder;
 import com.helger.jcodemodel.JBlock;
 import com.helger.jcodemodel.JFieldVar;
 import com.helger.jcodemodel.JMethod;
 import com.helger.jcodemodel.JVar;
+import org.androidannotations.annotations.export.Export;
+import org.androidannotations.helper.ADIHelper;
 import org.androidannotations.holder.EBeanHolder;
 import org.androidannotations.internal.process.ProcessHolder;
 import org.androidannotations.plugin.PluginClassHolder;
+
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.util.ElementFilter;
+
+import java.util.List;
 
 import static com.helger.jcodemodel.JExpr.ref;
 import static com.helger.jcodemodel.JMod.PRIVATE;
@@ -69,6 +80,33 @@ public class EViewModelHolder extends PluginClassHolder<EBeanHolder> {
 		onClearedMethod.body().invoke(ref("super"), "onCleared");
 		onClearedMethodBlock = onClearedMethod.body().blockVirtual();
 		onClearedMethodFinalBlock = onClearedMethod.body().blockVirtual();
+
+		//Check if events registration is needed
+		ADIHelper adiHelper = new ADIHelper(environment());
+		List<ExecutableElement> methods = ElementFilter.methodsIn(getAnnotatedElement().getEnclosedElements());
+
+		boolean shouldRegisterForEvent = false;
+
+		for (ExecutableElement method : methods) {
+
+			if (adiHelper.hasAnnotation(method, Export.class)) continue;
+
+			if (adiHelper.hasAnnotation(method, Event.class)
+				|| adiHelper.hasAnnotation(method, OnEvent.class)
+				|| adiHelper.hasAnnotation(method, UpdateOnEvent.class)) {
+
+				shouldRegisterForEvent = true;
+			}
+
+		}
+
+		//Set the onClearMethod as the place to unregister events
+		if (shouldRegisterForEvent) {
+			EventHolder eventHolder = holder().getPluginHolder(new EventHolder(holder()));
+			eventHolder.setEventUnregisteringBlock(onClearedMethodBlock);
+			eventHolder.registerAsEventListener();
+		}
+
 	}
 
 	public JFieldVar getRootViewField() {
