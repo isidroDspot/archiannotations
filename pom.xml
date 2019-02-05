@@ -95,18 +95,21 @@
 
     <dependencyManagement>
         <dependencies>
+
             <dependency>
                 <groupId>com.dspot</groupId>
                 <artifactId>declex</artifactId>
                 <version>${declex.version}</version>
                 <scope>provided</scope>
             </dependency>
+
             <dependency>
                 <groupId>com.dspot</groupId>
                 <artifactId>declex-api</artifactId>
                 <version>${declex.version}</version>
                 <scope>provided</scope>
             </dependency>
+
         </dependencies>
     </dependencyManagement>
 

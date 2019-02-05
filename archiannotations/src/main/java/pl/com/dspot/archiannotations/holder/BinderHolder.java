@@ -15,11 +15,15 @@
  */
 package pl.com.dspot.archiannotations.holder;
 
-import com.helger.jcodemodel.*;
+import com.helger.jcodemodel.AbstractJClass;
+import com.helger.jcodemodel.IJExpression;
+import com.helger.jcodemodel.JBlock;
+import com.helger.jcodemodel.JFieldRef;
+import com.helger.jcodemodel.JMethod;
+import com.helger.jcodemodel.JVar;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.handler.MethodInjectionHandler;
-import org.androidannotations.helper.APTCodeModelHelper;
 import org.androidannotations.helper.IdAnnotationHelper;
 import org.androidannotations.holder.EBeanHolder;
 import org.androidannotations.holder.EComponentWithViewSupportHolder;
@@ -32,9 +36,12 @@ import pl.com.dspot.archiannotations.annotation.Observable;
 import pl.com.dspot.archiannotations.annotation.Observer;
 import pl.com.dspot.archiannotations.annotation.ViewModel;
 import pl.com.dspot.archiannotations.helper.ViewsPropertiesReaderHelper;
+import pl.com.dspot.archiannotations.helper.override.APTCodeModelHelper;
 
-import javax.lang.model.element.*;
-import javax.lang.model.type.TypeKind;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import java.util.HashMap;
@@ -178,11 +185,7 @@ public class BinderHolder extends PluginClassHolder<EComponentWithViewSupportHol
 
 				if (setters.containsKey(propertyName)) {
 
-					String observableClassName = observableField.asType().toString();
-					if (observableClassName.contains("<")) {
-						observableClassName = observableClassName.substring(observableClassName.indexOf("<") + 1, observableClassName.length() -1);
-					}
-
+					String observableClassName = codeModelHelper.elementTypeToJClass(observableField, true).fullName();
 					TypeElement observableType = null;
 
 					for (TypeMirror setter : setters.get(propertyName)) {
@@ -257,7 +260,11 @@ public class BinderHolder extends PluginClassHolder<EComponentWithViewSupportHol
 
 			//Remove the observer when the ViewModel is not needed anymore
 			EViewModelHolder viewModelHolder = holder().getPluginHolder(new EViewModelHolder((EBeanHolder) holder()));
-			viewModelHolder.getOnClearedMethodBlock().add(observableInvocation.invoke("removeObserver").arg(observerGetMethod));
+			viewModelHolder.getOnClearedMethodBlock().invoke(observerHolder.getRemoveObserverMethod()).arg(observerGetMethod);
+
+			observerHolder.getRemoveObserverMethod().body()
+					._if(observerHolder.getRemoveObserverMethodParam().eq(observerGetMethod))._then()
+					.add(observableInvocation.invoke("removeObserver").arg(observerHolder.getRemoveObserverMethodParam()));
 
 		} else {
 
@@ -275,11 +282,7 @@ public class BinderHolder extends PluginClassHolder<EComponentWithViewSupportHol
 								  VariableElement observableField, IJExpression observableInvocation,
 								  Element element) {
 
-		String observableClassName = observableField.asType().toString();
-		if (observableClassName.contains("<")) {
-			observableClassName = observableClassName.substring(observableClassName.indexOf("<") + 1, observableClassName.length() -1);
-		}
-		AbstractJClass observableClass = getJClass(observableClassName);
+		AbstractJClass observableClass = codeModelHelper.elementTypeToJClass(observableField, true);
 
 		JMethod observerMethod = observerHolder.getObserverMethodFor(
 				element, propertyName ==  null? "Default" : propertyName, observableClass);
@@ -302,14 +305,7 @@ public class BinderHolder extends PluginClassHolder<EComponentWithViewSupportHol
 	private void assignProperty(String viewReference, TypeMirror viewType, String propertyName,
 								VariableElement observableField, JVar param, JBlock block) {
 
-		String observableClassName = observableField.asType().toString();
-		if (observableClassName.contains("<")) {
-			observableClassName = observableClassName.substring(0, observableClassName.indexOf("<"));
-		}
-
-		TypeElement observableTypeElement = annotationHelper.typeElementFromQualifiedName(observableClassName);
-		if (observableTypeElement == null) return;
-
+		String observableClassName = codeModelHelper.elementTypeToJClass(observableField, true).name();
 		IJExpression viewRef = ref(viewReference);
 
 		if (propertyName == null) {
@@ -325,9 +321,9 @@ public class BinderHolder extends PluginClassHolder<EComponentWithViewSupportHol
 			}
 
 			if (isSubtype(viewType, TEXT_VIEW, environment().getProcessingEnvironment())) {
-				if (isSubtype(observableTypeElement, "android.text.Spanned", environment().getProcessingEnvironment())) {
+				if (isSubtype(observableClassName, "android.text.Spanned", environment().getProcessingEnvironment())) {
 					block.invoke(viewRef, "setText").arg(param);
-				} else if (isSubtype(observableTypeElement, CHAR_SEQUENCE, environment().getProcessingEnvironment())) {
+				} else if (isSubtype(observableClassName, CHAR_SEQUENCE, environment().getProcessingEnvironment())) {
 					block.invoke(viewRef, "setText").arg(param);
 				} else {
 					block.invoke(viewRef, "setText").arg(getJClass(String.class).staticInvoke("valueOf").arg(param));
