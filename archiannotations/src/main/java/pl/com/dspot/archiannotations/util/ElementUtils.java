@@ -1,7 +1,5 @@
 package pl.com.dspot.archiannotations.util;
 
-import org.androidannotations.helper.AnnotationHelper;
-
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
@@ -9,18 +7,6 @@ import javax.lang.model.type.TypeMirror;
 import java.util.List;
 
 public class ElementUtils {
-
-    public static boolean extendsType(Element element, String typeQualifiedName, AnnotationHelper annotationHelper) {
-        TypeMirror elementType = element.asType();
-
-        TypeElement typeElement = annotationHelper.typeElementFromQualifiedName(typeQualifiedName);
-        if (typeElement != null) {
-            TypeMirror expectedType = typeElement.asType();
-            return annotationHelper.isSubtype(elementType, expectedType);
-        }
-
-        return false;
-    }
 
     public static boolean isSubTypeRecursive(TypeMirror potentialSubtype, TypeMirror potentialSupertype, ProcessingEnvironment processingEnv) {
         String subType = potentialSubtype.toString();

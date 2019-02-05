@@ -50,7 +50,7 @@
     <modules>
         <module>archiannotations</module>
         <module>archiannotations-api</module>
-        <module>../_public/Dependencies/androidannotations/AndroidAnnotations/androidannotations-core</module>
+        <!--<module>../_public/Dependencies/androidannotations/AndroidAnnotations/androidannotations-core</module>-->
     </modules>
 
     <properties>
@@ -95,18 +95,21 @@
 
     <dependencyManagement>
         <dependencies>
+
             <dependency>
                 <groupId>org.androidannotations</groupId>
                 <artifactId>androidannotations</artifactId>
                 <version>${aa.version}</version>
                 <scope>provided</scope>
             </dependency>
+
             <dependency>
                 <groupId>org.androidannotations</groupId>
                 <artifactId>androidannotations-api</artifactId>
                 <version>${aa.version}</version>
                 <scope>provided</scope>
             </dependency>
+
         </dependencies>
     </dependencyManagement>
 

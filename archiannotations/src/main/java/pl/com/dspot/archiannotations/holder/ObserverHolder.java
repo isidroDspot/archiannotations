@@ -15,20 +15,28 @@
  */
 package pl.com.dspot.archiannotations.holder;
 
-import com.helger.jcodemodel.*;
-import org.androidannotations.helper.APTCodeModelHelper;
+import com.helger.jcodemodel.AbstractJClass;
+import com.helger.jcodemodel.JBlock;
+import com.helger.jcodemodel.JDefinedClass;
+import com.helger.jcodemodel.JFieldVar;
+import com.helger.jcodemodel.JMethod;
+import com.helger.jcodemodel.JMod;
+import com.helger.jcodemodel.JVar;
 import org.androidannotations.helper.AnnotationHelper;
 import org.androidannotations.holder.GeneratedClassHolder;
 import org.androidannotations.plugin.PluginClassHolder;
+import pl.com.dspot.archiannotations.helper.override.APTCodeModelHelper;
 
-import javax.lang.model.element.*;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.ErrorType;
 import javax.lang.model.type.TypeMirror;
-
 import java.util.HashMap;
 import java.util.Map;
 
 import static com.helger.jcodemodel.JExpr.*;
-import static com.helger.jcodemodel.JExpr._this;
 import static com.helger.jcodemodel.JMod.PUBLIC;
 import static java.lang.reflect.Modifier.PRIVATE;
 import static org.androidannotations.helper.CanonicalNameConstants.VIEW;
@@ -141,7 +149,7 @@ public class ObserverHolder extends PluginClassHolder<GeneratedClassHolder> {
 				Observer.narrow(observerClass),
 				fieldToGetter(observerName)
 		);
-		JBlock creationBlock = getterMethod.body()._if(_this().ref(observerName).eqNull())._then();
+		JBlock creationBlock = getterMethod.body()._if(_this().ref(observerName).eq(_null()))._then();
 
 		JDefinedClass AnonymousObserver = getCodeModel().anonymousClass(Observer.narrow(observerClass));
 		JMethod anonymousOnChanged = AnonymousObserver.method(PUBLIC, getCodeModel().VOID, "onChanged");
