@@ -126,14 +126,11 @@ public class ObserverHolder extends PluginClassHolder<GeneratedClassHolder> {
 
 		if (observerClass == null) {
 
-			TypeMirror observerType;
 			if (element.getKind() == ElementKind.METHOD) {
-				observerType = ((ExecutableElement) element).getParameters().get(0).asType();
+				observerClass = codeModelHelper.elementTypeToJClass(((ExecutableElement) element).getParameters().get(0));
 			} else {
-				observerType = element.asType();
+				observerClass = codeModelHelper.elementTypeToJClass(element);
 			}
-
-			observerClass = codeModelHelper.typeMirrorToJClass(observerType);
 
 		}
 

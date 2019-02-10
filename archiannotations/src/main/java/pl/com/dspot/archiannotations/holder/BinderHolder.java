@@ -25,6 +25,7 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.handler.MethodInjectionHandler;
 import org.androidannotations.helper.IdAnnotationHelper;
+import org.androidannotations.holder.EActivityHolder;
 import org.androidannotations.holder.EBeanHolder;
 import org.androidannotations.holder.EComponentWithViewSupportHolder;
 import org.androidannotations.holder.FoundViewHolder;
@@ -248,6 +249,9 @@ public class BinderHolder extends PluginClassHolder<EComponentWithViewSupportHol
 		JBlock block;
 		if (holder() instanceof MethodInjectionHandler) {
 			block = ((MethodInjectionHandler) this).getInvocationBlock(element, holder());
+		} else if (holder() instanceof EActivityHolder) {
+			EActivityUtilsHolder activityUtilsHolder = holder().getPluginHolder(new EActivityUtilsHolder((EActivityHolder) holder()));
+			block = activityUtilsHolder.getOnCreateAfterSuperInjectionsBlock();
 		} else {
 			block = holder().getInitBodyAfterInjectionBlock();
 		}

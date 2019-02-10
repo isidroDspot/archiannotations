@@ -50,10 +50,9 @@ public class EViewModelHandler extends BaseAnnotationHandler<EBeanHolder> {
 
         EViewModelHolder viewModelHolder = holder.getPluginHolder(new EViewModelHolder(holder));
 
-        viewModelHolder.setEmptyConstructor();
-        viewModelHolder.setBindToMethod();
-        viewModelHolder.setOnClearedMethod();
-
+        viewModelHolder.getEmptyConstructorMethod();
+        viewModelHolder.getBindToMethod();
+        viewModelHolder.getOnClearedMethod();
 
         //Clear the context variable after the injections, to avoid that the class hold references to the Context
         holder.getInitBodyAfterInjectionBlock().assign(holder.getContextField(), _null());

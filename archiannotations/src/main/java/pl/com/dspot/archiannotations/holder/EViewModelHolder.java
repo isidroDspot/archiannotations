@@ -34,6 +34,7 @@ import javax.lang.model.util.ElementFilter;
 
 import java.util.List;
 
+import static com.helger.jcodemodel.JExpr.TRUE;
 import static com.helger.jcodemodel.JExpr.ref;
 import static com.helger.jcodemodel.JMod.PRIVATE;
 import static com.helger.jcodemodel.JMod.PUBLIC;
@@ -43,7 +44,7 @@ public class EViewModelHolder extends PluginClassHolder<EBeanHolder> {
 
 	public final static String BIND_TO_METHOD_NAME = "bindTo";
 
-	private JMethod constructor;
+	private JMethod emptyConstructorMethod;
 
 	private JMethod onClearedMethod;
 	private JBlock onClearedMethodBlock;
@@ -57,25 +58,72 @@ public class EViewModelHolder extends PluginClassHolder<EBeanHolder> {
 		super(holder);
 	}
 
-	public void setEmptyConstructor() {
-		//The View Models needs to have an empty constructor
-		constructor = holder().getGeneratedClass().constructor(PUBLIC);
-		JBlock constructorBody = constructor.body();
+	public JFieldVar getRootViewField() {
+		if (rootViewField == null) {
+			rootViewField = holder().getGeneratedClass().field(PRIVATE, getClasses().OBJECT, "rootView" + generationSuffix());
+		}
+		return rootViewField;
+	}
+
+	public JMethod getEmptyConstructorMethod() {
+		if (emptyConstructorMethod == null) {
+			setEmptyConstructor();
+		}
+		return emptyConstructorMethod;
+	}
+
+	public JMethod getBindToMethod() {
+		if (bindToMethod == null) {
+			setBindToMethod();
+		}
+		return bindToMethod;
+	}
+
+	public JMethod getOnClearedMethod() {
+		if (onClearedMethod == null) {
+			setOnClearedMethod();
+		}
+		return onClearedMethod;
+	}
+
+	public JBlock getOnClearedMethodBlock() {
+		if (onClearedMethodBlock == null) {
+			setOnClearedMethod();
+		}
+		return onClearedMethodBlock;
+	}
+
+	public JBlock getOnClearedMethodFinalBlock() {
+		if (onClearedMethodFinalBlock == null) {
+			setOnClearedMethod();
+		}
+		return onClearedMethodFinalBlock;
+	}
+
+	private void setEmptyConstructor() {
+		//The View Models needs to have an empty emptyConstructorMethod
+		emptyConstructorMethod = holder().getGeneratedClass().constructor(PUBLIC);
+		JBlock constructorBody = emptyConstructorMethod.body();
 		constructorBody.invoke("super");
 	}
 
-	public void setBindToMethod() {
+	private void setBindToMethod() {
 		bindToMethod = holder().getGeneratedClass().method(PUBLIC, getCodeModel().VOID, BIND_TO_METHOD_NAME);
 		JVar contextParam = bindToMethod.param(getClasses().CONTEXT, "context");
 		JVar rootViewParam = bindToMethod.param(getClasses().OBJECT, "rootView");
 
 		JBlock body = bindToMethod.body();
+
+		JFieldVar alreadyBound = holder().getGeneratedClass().field(PRIVATE, getCodeModel().BOOLEAN, "alreadyBound_");
+		body = body._if(alreadyBound.not())._then();
+		body.assign(alreadyBound, TRUE);
+
 		body.assign(holder().getContextField(), contextParam);
 		body.assign(getRootViewField(), rootViewParam);
 		body.invoke(holder().getInit());
 	}
 
-	public void setOnClearedMethod() {
+	private void setOnClearedMethod() {
 		onClearedMethod = holder().getGeneratedClass().method(PUBLIC, getCodeModel().VOID, "onCleared");
 		onClearedMethod.body().invoke(ref("super"), "onCleared");
 		onClearedMethodBlock = onClearedMethod.body().blockVirtual();
@@ -107,25 +155,6 @@ public class EViewModelHolder extends PluginClassHolder<EBeanHolder> {
 			eventHolder.registerAsEventListener();
 		}
 
-	}
-
-	public JFieldVar getRootViewField() {
-		if (rootViewField == null) {
-			rootViewField = holder().getGeneratedClass().field(PRIVATE, getClasses().OBJECT, "rootView" + generationSuffix());
-		}
-		return rootViewField;
-	}
-
-	public JMethod getOnClearedMethod() {
-		return onClearedMethod;
-	}
-
-	public JBlock getOnClearedMethodBlock() {
-		return onClearedMethodBlock;
-	}
-
-	public JBlock getOnClearedMethodFinalBlock() {
-		return onClearedMethodFinalBlock;
 	}
 
 	protected ProcessHolder.Classes getClasses() {
