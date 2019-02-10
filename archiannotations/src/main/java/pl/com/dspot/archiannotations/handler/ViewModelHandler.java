@@ -28,6 +28,7 @@ import org.androidannotations.holder.EComponentWithViewSupportHolder;
 import org.androidannotations.holder.EFragmentHolder;
 import pl.com.dspot.archiannotations.annotation.EViewModel;
 import pl.com.dspot.archiannotations.annotation.ViewModel;
+import pl.com.dspot.archiannotations.holder.EActivityUtilsHolder;
 import pl.com.dspot.archiannotations.holder.EViewModelHolder;
 
 import javax.lang.model.element.Element;
@@ -47,8 +48,6 @@ import static pl.com.dspot.archiannotations.ArchiCanonicalNameConstants.VIEW_MOD
 public class ViewModelHandler extends BaseAnnotationHandler<EComponentWithViewSupportHolder> implements MethodInjectionHandler<EComponentWithViewSupportHolder> {
 
     private final InjectHelper<EComponentWithViewSupportHolder> injectHelper;
-
-    private final Map<EActivityHolder, JBlock> blockAfterSuperCallPerHolder = new HashMap<>();
 
     public ViewModelHandler(AndroidAnnotationsEnvironment environment) {
         super(ViewModel.class, environment);
@@ -74,19 +73,14 @@ public class ViewModelHandler extends BaseAnnotationHandler<EComponentWithViewSu
 
         validatorHelper.isNotPrivate(element, validation);
 
-        if (element.getEnclosingElement().getAnnotation(EViewModel.class) == null) {
+        List<Class<? extends Annotation>> validAnnotations = asList(EActivity.class, EFragment.class, EViewModel.class, EBean.class);
+        validatorHelper.enclosingElementHasOneOfAnnotations(element, validAnnotations, validation);
+
+        if (element.getEnclosingElement().getAnnotation(EBean.class) != null) {
 
             ViewModel viewModel = element.getAnnotation(ViewModel.class);
             if (viewModel.scope() != ViewModel.Scope.Activity) {
-
-                List<Class<? extends Annotation>> validAnnotations = asList(EActivity.class, EFragment.class);
-                validatorHelper.enclosingElementHasOneOfAnnotations(element, validAnnotations, validation);
-
-            } else {
-
-                List<Class<? extends Annotation>> validAnnotations = asList(EActivity.class, EFragment.class, EBean.class, EView.class, EViewGroup.class);
-                validatorHelper.enclosingElementHasOneOfAnnotations(element, validAnnotations, validation);
-
+                validation.addError("You can inject ViewModels on @EBean annotated classes only with the Activity Scope");
             }
 
         }
@@ -97,7 +91,8 @@ public class ViewModelHandler extends BaseAnnotationHandler<EComponentWithViewSu
     public JBlock getInvocationBlock(EComponentWithViewSupportHolder holder) {
 
         if (holder instanceof EActivityHolder) {
-            return getBlockAfterSuperCall((EActivityHolder) holder);
+            EActivityUtilsHolder activityUtilsHolder = holder.getPluginHolder(new EActivityUtilsHolder((EActivityHolder) holder));
+            return activityUtilsHolder.getOnCreateAfterSuperBlock();
         }
 
         return holder.getInitBodyInjectionBlock();
@@ -192,6 +187,8 @@ public class ViewModelHandler extends BaseAnnotationHandler<EComponentWithViewSu
             bindToInvoke.arg(_this());
         } else if (isEnclosedInEViewModel) {
             bindToInvoke.arg(viewModelHolder.getRootViewField());
+        } else {
+            bindToInvoke.arg(holder.getContextRef());
         }
 
     }
@@ -199,60 +196,6 @@ public class ViewModelHandler extends BaseAnnotationHandler<EComponentWithViewSu
     @Override
     public void validateEnclosingElement(Element element, ElementValidation valid) {
         validatorHelper.enclosingElementHasEnhancedComponentAnnotation(element, valid);
-    }
-
-
-    private JBlock getBlockAfterSuperCall(EActivityHolder holder) {
-
-        if (blockAfterSuperCallPerHolder.containsKey(holder)) {
-            return blockAfterSuperCallPerHolder.get(holder);
-        }
-
-        JMethod onCreateMethod = holder.getOnCreate();
-        JBlock previousBody = codeModelHelper.removeBody(onCreateMethod);
-        JBlock newBody = onCreateMethod.body();
-        JBlock blockAfterSuper = new JBlock();
-
-        //TODO Replace calls to super, if any
-        for (Object content : previousBody.getContents()) {
-
-            if (content instanceof IJStatement) {
-
-                StringWriter writer = new StringWriter();
-                JFormatter formatter = new JFormatter(writer);
-                IJStatement statement = (IJStatement) content;
-                statement.state(formatter);
-                String statementString = writer.getBuffer().toString();
-
-                if (statementString.trim().startsWith("super.")) {
-                    newBody.add((IJStatement) content);
-                    newBody.add(blockAfterSuper);
-                    continue;
-                }
-
-            }
-
-            if (content instanceof JVar) {
-                JVar var = (JVar) content;
-                try {
-                    java.lang.reflect.Field varInitField = JVar.class.getDeclaredField("m_aInitExpr");
-                    varInitField.setAccessible(true);
-                    IJExpression varInit = (IJExpression) varInitField.get(var);
-
-                    newBody.decl(var.type(), var.name(), varInit);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            } else {
-                newBody.add((IJStatement) content);
-            }
-
-        }
-
-        blockAfterSuperCallPerHolder.put(holder, blockAfterSuper);
-
-        return blockAfterSuper;
-
     }
 
 }
