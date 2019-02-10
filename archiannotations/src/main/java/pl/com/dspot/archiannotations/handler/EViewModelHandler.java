@@ -26,6 +26,7 @@ import pl.com.dspot.archiannotations.holder.EViewModelHolder;
 
 import javax.lang.model.element.Element;
 
+import static com.dspot.declex.action.ActionsProcessor.hasAction;
 import static com.helger.jcodemodel.JExpr._null;
 import static com.helger.jcodemodel.JExpr._this;
 import static pl.com.dspot.archiannotations.ArchiCanonicalNameConstants.VIEW_MODEL;
@@ -42,7 +43,13 @@ public class EViewModelHandler extends BaseAnnotationHandler<EBeanHolder> {
         validatorHelper.extendsType(element, VIEW_MODEL, valid);
 
         //TODO Do validations about data which can be injected in ViewModels
+        for (Element elem : element.getEnclosedElements()) {
 
+            if (hasAction(elem, getEnvironment())) {
+                valid.addError("Actions are not permitted in EViewModel annotated classes");
+            }
+
+        }
     }
 
     @Override
