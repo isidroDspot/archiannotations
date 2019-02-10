@@ -54,7 +54,7 @@
     </modules>
 
     <properties>
-        <declex.version>2.0.a.28</declex.version>
+        <declex.version>2.0.a.29</declex.version>
     </properties>
 
     <repositories>
