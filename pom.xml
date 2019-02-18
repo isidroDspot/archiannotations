@@ -12,7 +12,7 @@
 
     <groupId>pl.com.dspot</groupId>
     <artifactId>archiannotations-declex-parent</artifactId>
-    <version>0.1</version>
+    <version>0.1.1</version>
     <packaging>pom</packaging>
 
     <name>Archiannotations Parent</name>
@@ -50,7 +50,7 @@
     <modules>
         <module>archiannotations</module>
         <module>archiannotations-api</module>
-        <module>../_public</module>
+        <!--<module>../_public</module>-->
     </modules>
 
     <properties>

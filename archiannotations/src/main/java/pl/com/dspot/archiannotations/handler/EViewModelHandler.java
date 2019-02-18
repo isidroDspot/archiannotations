@@ -18,10 +18,14 @@ package pl.com.dspot.archiannotations.handler;
 import org.androidannotations.AndroidAnnotationsEnvironment;
 import org.androidannotations.ElementValidation;
 import org.androidannotations.annotations.Bean;
+import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.RootContext;
 import org.androidannotations.handler.BaseAnnotationHandler;
 import org.androidannotations.holder.EBeanHolder;
 import pl.com.dspot.archiannotations.annotation.EViewModel;
+import pl.com.dspot.archiannotations.annotation.RootView;
 import pl.com.dspot.archiannotations.annotation.ViewModel;
+import pl.com.dspot.archiannotations.annotation.ViewPresenter;
 import pl.com.dspot.archiannotations.holder.EViewModelHolder;
 
 import javax.lang.model.element.Element;
@@ -29,7 +33,9 @@ import javax.lang.model.element.Element;
 import static com.dspot.declex.action.ActionsProcessor.hasAction;
 import static com.helger.jcodemodel.JExpr._null;
 import static com.helger.jcodemodel.JExpr._this;
+import static pl.com.dspot.archiannotations.ArchiCanonicalNameConstants.LIFECYCLE_OBSERVER;
 import static pl.com.dspot.archiannotations.ArchiCanonicalNameConstants.VIEW_MODEL;
+import static pl.com.dspot.archiannotations.util.ElementUtils.isSubtype;
 
 public class EViewModelHandler extends BaseAnnotationHandler<EBeanHolder> {
 
@@ -41,8 +47,10 @@ public class EViewModelHandler extends BaseAnnotationHandler<EBeanHolder> {
     public void validate(Element element, ElementValidation valid) {
 
         validatorHelper.extendsType(element, VIEW_MODEL, valid);
+        validatorHelper.typeHasAnnotation(EBean.class, element, valid);
 
         //TODO Do validations about data which can be injected in ViewModels
+
         for (Element elem : element.getEnclosedElements()) {
 
             if (hasAction(elem, getEnvironment())) {
@@ -78,6 +86,18 @@ public class EViewModelHandler extends BaseAnnotationHandler<EBeanHolder> {
             }
 
             if (elem.getAnnotation(ViewModel.class) != null) {
+                markedToRemove = true;
+            }
+
+            if (elem.getAnnotation(ViewPresenter.class) != null) {
+                markedToRemove = true;
+            }
+
+            if (elem.getAnnotation(RootContext.class) != null) {
+                markedToRemove = true;
+            }
+
+            if (elem.getAnnotation(RootView.class) != null) {
                 markedToRemove = true;
             }
 

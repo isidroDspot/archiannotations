@@ -118,7 +118,7 @@ public class BinderHolder extends PluginClassHolder<EComponentWithViewSupportHol
 				if (field.asType().getKind().isPrimitive()) {
 
 					if (!bindObserver(field)) {
-						LOGGER.warn("@Observer not resolved", field);
+						LOGGER.error("@Observer not resolved", field);
 					}
 
 				} else if (isSubtype(field.asType(), VIEW, environment().getProcessingEnvironment())) {
@@ -134,11 +134,11 @@ public class BinderHolder extends PluginClassHolder<EComponentWithViewSupportHol
 					}
 
 					if (!bindObservablesToView(field, field.asType())) {
-						LOGGER.warn("@Observer not resolved", field);
+						LOGGER.error("@Observer not resolved", field);
 					}
 
 				} else if (!bindObserver(field)) {
-					LOGGER.warn("@Observer not resolved", field);
+					LOGGER.error("@Observer not resolved", field);
 				}
 
 			}

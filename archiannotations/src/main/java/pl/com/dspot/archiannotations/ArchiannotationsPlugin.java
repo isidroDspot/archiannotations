@@ -45,6 +45,8 @@ public class ArchiannotationsPlugin extends AndroidAnnotationsPlugin {
         handlers.add(new PresenterMethodHandler(androidAnnotationEnv));
 
         handlers.add(new ViewModelHandler(androidAnnotationEnv));
+        handlers.add(new ViewPresenterHandler(androidAnnotationEnv));
+
         handlers.add(new RootViewHandler(androidAnnotationEnv));
 
         return handlers;

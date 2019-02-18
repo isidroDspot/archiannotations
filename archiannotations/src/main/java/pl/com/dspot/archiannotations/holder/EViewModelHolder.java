@@ -20,9 +20,7 @@ import com.dspot.declex.annotation.OnEvent;
 import com.dspot.declex.annotation.UpdateOnEvent;
 import com.dspot.declex.holder.EventHolder;
 import com.helger.jcodemodel.JBlock;
-import com.helger.jcodemodel.JFieldVar;
 import com.helger.jcodemodel.JMethod;
-import com.helger.jcodemodel.JVar;
 import org.androidannotations.annotations.export.Export;
 import org.androidannotations.helper.ADIHelper;
 import org.androidannotations.holder.EBeanHolder;
@@ -31,52 +29,19 @@ import org.androidannotations.plugin.PluginClassHolder;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.util.ElementFilter;
-
 import java.util.List;
 
-import static com.helger.jcodemodel.JExpr.TRUE;
 import static com.helger.jcodemodel.JExpr.ref;
-import static com.helger.jcodemodel.JMod.PRIVATE;
 import static com.helger.jcodemodel.JMod.PUBLIC;
-import static org.androidannotations.helper.ModelConstants.generationSuffix;
 
-public class EViewModelHolder extends PluginClassHolder<EBeanHolder> {
-
-	public final static String BIND_TO_METHOD_NAME = "bindTo";
-
-	private JMethod emptyConstructorMethod;
+public class EViewModelHolder extends BaseArchitectureComponentHolder {
 
 	private JMethod onClearedMethod;
 	private JBlock onClearedMethodBlock;
 	private JBlock onClearedMethodFinalBlock;
 
-	private JFieldVar rootViewField;
-
-	private JMethod bindToMethod;
-
 	public EViewModelHolder(EBeanHolder holder) {
 		super(holder);
-	}
-
-	public JFieldVar getRootViewField() {
-		if (rootViewField == null) {
-			rootViewField = holder().getGeneratedClass().field(PRIVATE, getClasses().OBJECT, "rootView" + generationSuffix());
-		}
-		return rootViewField;
-	}
-
-	public JMethod getEmptyConstructorMethod() {
-		if (emptyConstructorMethod == null) {
-			setEmptyConstructor();
-		}
-		return emptyConstructorMethod;
-	}
-
-	public JMethod getBindToMethod() {
-		if (bindToMethod == null) {
-			setBindToMethod();
-		}
-		return bindToMethod;
 	}
 
 	public JMethod getOnClearedMethod() {
@@ -98,29 +63,6 @@ public class EViewModelHolder extends PluginClassHolder<EBeanHolder> {
 			setOnClearedMethod();
 		}
 		return onClearedMethodFinalBlock;
-	}
-
-	private void setEmptyConstructor() {
-		//The View Models needs to have an empty emptyConstructorMethod
-		emptyConstructorMethod = holder().getGeneratedClass().constructor(PUBLIC);
-		JBlock constructorBody = emptyConstructorMethod.body();
-		constructorBody.invoke("super");
-	}
-
-	private void setBindToMethod() {
-		bindToMethod = holder().getGeneratedClass().method(PUBLIC, getCodeModel().VOID, BIND_TO_METHOD_NAME);
-		JVar contextParam = bindToMethod.param(getClasses().CONTEXT, "context");
-		JVar rootViewParam = bindToMethod.param(getClasses().OBJECT, "rootView");
-
-		JBlock body = bindToMethod.body();
-
-		JFieldVar alreadyBound = holder().getGeneratedClass().field(PRIVATE, getCodeModel().BOOLEAN, "alreadyBound_");
-		body = body._if(alreadyBound.not())._then();
-		body.assign(alreadyBound, TRUE);
-
-		body.assign(holder().getContextField(), contextParam);
-		body.assign(getRootViewField(), rootViewParam);
-		body.invoke(holder().getInit());
 	}
 
 	private void setOnClearedMethod() {

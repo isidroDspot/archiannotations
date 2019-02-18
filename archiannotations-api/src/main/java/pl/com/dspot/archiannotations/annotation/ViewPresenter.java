@@ -26,9 +26,4 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.FIELD)
 public @interface ViewPresenter {
-
-    Scope scope() default Scope.Default;
-
-    enum Scope {Default, Activity}
-
 }

@@ -43,7 +43,8 @@ import static com.helger.jcodemodel.JExpr.*;
 import static java.util.Arrays.asList;
 import static org.androidannotations.helper.CanonicalNameConstants.FRAGMENT_ACTIVITY;
 import static org.androidannotations.helper.ModelConstants.generationSuffix;
-import static pl.com.dspot.archiannotations.ArchiCanonicalNameConstants.VIEW_MODEL_PROVIDERS;
+import static pl.com.dspot.archiannotations.ArchiCanonicalNameConstants.*;
+import static pl.com.dspot.archiannotations.util.ElementUtils.isSubtype;
 
 public class ViewModelHandler extends BaseAnnotationHandler<EComponentWithViewSupportHolder> implements MethodInjectionHandler<EComponentWithViewSupportHolder> {
 
@@ -76,7 +77,8 @@ public class ViewModelHandler extends BaseAnnotationHandler<EComponentWithViewSu
         List<Class<? extends Annotation>> validAnnotations = asList(EActivity.class, EFragment.class, EViewModel.class, EBean.class);
         validatorHelper.enclosingElementHasOneOfAnnotations(element, validAnnotations, validation);
 
-        if (element.getEnclosingElement().getAnnotation(EBean.class) != null) {
+        if (element.getEnclosingElement().getAnnotation(EBean.class) != null
+            && element.getEnclosingElement().getAnnotation(EViewModel.class) == null) {
 
             ViewModel viewModel = element.getAnnotation(ViewModel.class);
             if (viewModel.scope() != ViewModel.Scope.Activity) {
@@ -116,10 +118,13 @@ public class ViewModelHandler extends BaseAnnotationHandler<EComponentWithViewSu
         AbstractJClass enhancedClass = getJClass(annotationHelper.generatedClassQualifiedNameFromQualifiedName(typeQualifiedName));
 
         IJExpression injectingField;
+        String viewModelClassName;
         if (element.asType().toString().endsWith(generationSuffix())) {
             injectingField = fieldRef;
+            viewModelClassName = element.asType().toString().substring(0, element.asType().toString().length() - 1);
         } else {
             injectingField = cast(enhancedClass, fieldRef);
+            viewModelClassName = element.asType().toString();
         }
 
         EViewModelHolder viewModelHolder = null;
@@ -133,6 +138,7 @@ public class ViewModelHandler extends BaseAnnotationHandler<EComponentWithViewSu
 
         JBlock previousTargetBlock = targetBlock;
         JInvocation injectedViewModel;
+        IJExpression lifecycleOwner;
         switch (viewModel.scope()) {
             case Activity:
 
@@ -146,6 +152,9 @@ public class ViewModelHandler extends BaseAnnotationHandler<EComponentWithViewSu
                 injectedViewModel = getJClass(VIEW_MODEL_PROVIDERS)
                         .staticInvoke("of").arg(cast(getJClass(FRAGMENT_ACTIVITY), holder.getContextRef()))
                         .invoke("get").arg(enhancedClass.dotclass());
+
+                lifecycleOwner = cast(getJClass(LIFECYCLE_OWNER), holder.getContextRef());
+
                 break;
 
             default:
@@ -166,12 +175,16 @@ public class ViewModelHandler extends BaseAnnotationHandler<EComponentWithViewSu
                             .staticInvoke("of").arg(cast(getClasses().SUPPORT_V4_FRAGMENT, viewModelHolder.getRootViewField()))
                             .invoke("get").arg(enhancedClass.dotclass());
 
+                    lifecycleOwner = cast(getJClass(LIFECYCLE_OWNER), viewModelHolder.getRootViewField());
+
 
                 } else {
 
                     injectedViewModel = getJClass(VIEW_MODEL_PROVIDERS)
                             .staticInvoke("of").arg(_this())
                             .invoke("get").arg(enhancedClass.dotclass());
+
+                    lifecycleOwner = _this();
 
                 }
         }
@@ -189,6 +202,11 @@ public class ViewModelHandler extends BaseAnnotationHandler<EComponentWithViewSu
             bindToInvoke.arg(viewModelHolder.getRootViewField());
         } else {
             bindToInvoke.arg(holder.getContextRef());
+        }
+
+        //Register as Lifecycle Observer if needed
+        if (isSubtype(viewModelClassName, LIFECYCLE_OBSERVER, getProcessingEnvironment())) {
+            bindToInvoke.arg(lifecycleOwner);
         }
 
     }
