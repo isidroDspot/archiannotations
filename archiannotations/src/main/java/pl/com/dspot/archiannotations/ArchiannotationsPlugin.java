@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import pl.com.dspot.archiannotations.handler.EViewModelHandler;
+import pl.com.dspot.archiannotations.handler.ViewModelHandler;
 
 public class ArchiannotationsPlugin extends AndroidAnnotationsPlugin {
 
@@ -35,8 +36,12 @@ public class ArchiannotationsPlugin extends AndroidAnnotationsPlugin {
     public List<AnnotationHandler<?>> getHandlers(AndroidAnnotationsEnvironment androidAnnotationEnv) {
 
         List<AnnotationHandler<?>> handlers = new LinkedList<>();
+
         handlers.add(new EViewModelHandler(androidAnnotationEnv));
+        handlers.add(new ViewModelHandler(androidAnnotationEnv));
+
         return handlers;
+
     }
 
 }

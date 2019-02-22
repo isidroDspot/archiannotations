@@ -29,23 +29,64 @@ public class ViewModelTest extends AAProcessorTestHelper {
     }
 
     @Test
-    public void activitySubclassInManifestCompiles() {
-        assertCompilationSuccessful(compileFiles(SomeActivity.class, SomeViewModel.class, SomeAndroidViewModel.class, SomeBean.class));
+    public void viewModelsInFragmentActivityAndSupportFragmentCompile() {
+        assertCompilationSuccessful(compileFiles(
+                defPath("ViewModelProvider.java", "ViewModelProviders.java"),
+                SomeFragmentActivity.class, SomeSupportFragment.class, SomeViewModel.class,
+                SomeAndroidViewModel.class, SomeViewModelActivityScoped.class, SomeViewModelWhichInjectsViewModel.class,
+                SomeBean.class
+        ));
+    }
+
+    @Test
+    public void viewModelsWithoutArchitectureExtensionLibraryDoNotCompile() {
+        assertCompilationError(compileFiles(
+                SomeFragmentActivity.class, SomeSupportFragment.class, SomeViewModel.class,
+                SomeAndroidViewModel.class, SomeViewModelActivityScoped.class, SomeViewModelWhichInjectsViewModel.class,
+                SomeBean.class
+        ));
+    }
+
+    @Test
+    public void viewModelOnSystemActivityDoesNotCompile() {
+        assertCompilationError(compileFiles(
+                defPath("ViewModelProvider.java", "ViewModelProviders.java"),
+                SomeActivity.class, SomeViewModel.class, SomeBean.class));
+    }
+
+    @Test
+    public void viewModelOnSystemFragmentDoesNotCompile() {
+        assertCompilationError(compileFiles(
+                defPath("ViewModelProvider.java", "ViewModelProviders.java"),
+                SomeFragment.class, SomeViewModel.class, SomeBean.class));
     }
 
     @Test
     public void viewModelOnInterfaceDoesNotCompile() {
-        assertCompilationError(compileFiles(ViewModelWithInterface.class));
+        assertCompilationError(compileFiles(
+                defPath("ViewModelProvider.java", "ViewModelProviders.java"),
+                ViewModelWithInterface.class));
     }
 
     @Test
     public void viewModelNotExtendingArchitectureComponentDoesNotCompile() {
-        assertCompilationError(compileFiles(ViewModelNotExtendingArchitectureComponent.class));
+        assertCompilationError(compileFiles(
+                defPath("ViewModelProvider.java", "ViewModelProviders.java"),
+                ViewModelNotExtendingArchitectureComponent.class));
     }
 
     @Test
     public void viewModelOnViewRelatedAnnotationsDoesNotCompile() {
-        assertCompilationError(compileFiles(ViewModelWithViewRelatedAnnotations.class));
+        assertCompilationError(compileFiles(
+                defPath("ViewModelProvider.java", "ViewModelProviders.java"),
+                ViewModelWithViewRelatedAnnotations.class));
+    }
+
+    @Test
+    public void viewModelOnEViewAnnotationsDoesNotCompile() {
+        assertCompilationError(compileFiles(
+                defPath("ViewModelProvider.java", "ViewModelProviders.java"),
+                SomeView.class));
     }
 
 }

@@ -15,16 +15,38 @@
  */
 package pl.com.dspot.archiannotations.viewmodel;
 
-import android.app.Activity;
+import android.support.v4.app.Fragment;
 
-import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.EFragment;
 
 import pl.com.dspot.archiannotations.annotation.ViewModel;
 
-@EActivity
-public class SomeActivity extends Activity {
+@EFragment
+public class SomeSupportFragment extends Fragment {
 
     @ViewModel
     SomeViewModel viewModel;
+
+    @ViewModel
+    SomeAndroidViewModel androidViewModel;
+
+    @ViewModel
+    SomeViewModelActivityScoped activityScoped;
+
+    @ViewModel
+    SomeViewModelWhichInjectsViewModel injectsViewModel;
+
+    @ViewModel
+    void injectViewModelMethod(SomeViewModel someViewModel) {
+
+    }
+
+    void injectViewModelParam(@ViewModel SomeViewModel someViewModel) {
+
+    }
+
+    void injectViewModelMultiParam(@ViewModel SomeViewModel someViewModel, @ViewModel SomeAndroidViewModel someAndroidViewModel) {
+
+    }
 
 }

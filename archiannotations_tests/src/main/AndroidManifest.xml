@@ -11,7 +11,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
 
-        <activity android:name=".SomeActivity_"/>
+        <activity android:name=".viewmodel.SomeFragmentActivity_"/>
 
     </application>
 </manifest>

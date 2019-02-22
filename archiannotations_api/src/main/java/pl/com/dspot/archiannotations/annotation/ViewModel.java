@@ -21,11 +21,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.CLASS)
-@Target(ElementType.FIELD)
+@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER })
 public @interface ViewModel {
-
-    Scope scope() default Scope.Default;
-
-    enum Scope {Default, Activity}
 
 }

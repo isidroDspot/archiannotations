@@ -17,7 +17,12 @@ package pl.com.dspot.archiannotations.viewmodel;
 
 import org.androidannotations.annotations.EBean;
 
+import pl.com.dspot.archiannotations.annotation.ViewModel;
+
 @EBean
 public class SomeBean {
+
+    @ViewModel
+    SomeViewModel someViewModel;
 
 }

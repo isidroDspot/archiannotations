@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pl.com.dspot.archiannotations.tests;
+package pl.com.dspot.archiannotations.tests.viewmodel;
 
-import android.arch.lifecycle.ViewModel;
+import android.app.Application;
+import android.arch.lifecycle.AndroidViewModel;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.Bean;
@@ -23,14 +24,13 @@ import org.androidannotations.annotations.Bean;
 import pl.com.dspot.archiannotations.annotation.EViewModel;
 
 @EViewModel
-public class SomeViewModel extends ViewModel {
+public class SomeAndroidViewModel extends AndroidViewModel {
 
     @Bean
     SomeBean someBean;
 
-    @AfterInject
-    void afterInject() {
-
+    public SomeAndroidViewModel(Application application) {
+        super(application);
     }
 
 }

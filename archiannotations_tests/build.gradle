@@ -30,6 +30,9 @@ dependencies {
     annotationProcessor "org.androidannotations:androidannotations:$aa_version"
     implementation "org.androidannotations:androidannotations-api:$aa_version"
 
+    def lifecycle_version = "1.1.1"
+    implementation "android.arch.lifecycle:extensions:$lifecycle_version"
+
     annotationProcessor project(":archiannotations")
     implementation project(":archiannotations_api")
     implementation project(":archiannotations_android")

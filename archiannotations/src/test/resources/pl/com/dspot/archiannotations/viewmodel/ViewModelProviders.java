@@ -13,11 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package pl.com.dspot.archiannotations.tests;
+package android.arch.lifecycle;
 
-import org.androidannotations.annotations.EBean;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 
-@EBean
-public class SomeBean {
+/**
+ * Stub
+ */
+public class ViewModelProviders {
+
+    public static ViewModelProvider of(Fragment fragment) {
+        return null;
+    }
+
+    public static ViewModelProvider of(FragmentActivity activity) {
+        return null;
+    }
 
 }

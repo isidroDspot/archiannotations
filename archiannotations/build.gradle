@@ -14,8 +14,12 @@ publishing {
 }
 
 dependencies {
+    implementation files("$System.env.JAVA_HOME/lib/tools.jar")
+
     implementation "org.androidannotations:androidannotations:$aa_version"
     implementation "org.androidannotations:androidannotations-api:$aa_version"
+
+    implementation 'org.apache.commons:commons-lang3:3.5'
 
     implementation project(":archiannotations_api")
 
