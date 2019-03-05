@@ -7,31 +7,24 @@
     <parent>
         <groupId>pl.com.dspot</groupId>
         <artifactId>archiannotations-declex-parent</artifactId>
-        <version>0.1.1</version>
+        <version>0.1.2</version>
     </parent>
 
     <artifactId>archiannotations-declex</artifactId>
     <name>Archiannotations Annotations Processor</name>
     <description>Architecture Components Annotations Processor for Android</description>
 
+    <distributionManagement>
+        <repository>
+            <id>bintray-declex</id>
+            <url>https://api.bintray.com/maven/dspot-developers/declex/declex-architecture/;publish=1</url>
+        </repository>
+    </distributionManagement>
+
     <dependencies>
         <dependency>
             <groupId>com.dspot</groupId>
             <artifactId>declex</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.helger</groupId>
-            <artifactId>jcodemodel</artifactId>
-            <version>3.0.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sun</groupId>
-            <artifactId>tools</artifactId>
-            <version>1.6</version>
-            <scope>system</scope>
-            <systemPath>${env.JAVA_HOME}/lib/tools.jar</systemPath>
         </dependency>
 
         <dependency>

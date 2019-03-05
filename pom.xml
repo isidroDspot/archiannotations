@@ -12,12 +12,19 @@
 
     <groupId>pl.com.dspot</groupId>
     <artifactId>archiannotations-declex-parent</artifactId>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
     <packaging>pom</packaging>
 
     <name>Archiannotations Parent</name>
     <description>Architecture Components Annotations for Android</description>
     <url>https://github.com/smaugho/archiannotations</url>
+
+    <distributionManagement>
+        <repository>
+            <id>bintray-declex</id>
+            <url>https://api.bintray.com/maven/dspot-developers/declex/declex-architecture-parent/;publish=1</url>
+        </repository>
+    </distributionManagement>
 
     <organization>
         <name>DSpot Sp. z o.o</name>
@@ -54,7 +61,7 @@
     </modules>
 
     <properties>
-        <declex.version>2.0.a.29</declex.version>
+        <declex.version>2.0.a.32</declex.version>
     </properties>
 
     <repositories>

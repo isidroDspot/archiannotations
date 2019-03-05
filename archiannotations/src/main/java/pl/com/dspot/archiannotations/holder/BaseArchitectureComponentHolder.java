@@ -99,7 +99,7 @@ public class BaseArchitectureComponentHolder extends PluginClassHolder<EBeanHold
         body.assign(getRootViewField(), rootViewParam);
         body.invoke(holder().getInit());
 
-        if (isSubtype(getAnnotatedElement(), LIFECYCLE_OBSERVER, processingEnv())) {
+        if (isSubtype(getAnnotatedElement(), LIFECYCLE_OBSERVER, getProcessingEnvironment())) {
             JVar lifecycleOwner = bindToMethod.param(getJClass(LIFECYCLE_OWNER), "lifecycleOwner");
             body.add(lifecycleOwner.invoke("getLifecycle").invoke("addObserver").arg(_this()));
         }

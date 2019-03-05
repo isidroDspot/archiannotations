@@ -163,12 +163,12 @@ public class ObserverHolder extends PluginClassHolder<GeneratedClassHolder> {
 
 			ExecutableElement executableElement = (ExecutableElement) element;
 			if (executableElement.getReturnType().toString().equals("void")) {
-				anonymousOnChanged.body().invoke(fieldName).arg(param);
+				anonymousOnChanged.body().add(invoke(fieldName).arg(param));
 			} else {
 				//Check the boolean, its value determines if it is needed to unregister the observer
 				JVar removeObserver = anonymousOnChanged.body().decl(getCodeModel().BOOLEAN, "removeObserver", invoke(fieldName).arg(param));
 				JBlock removeObserverBlock = anonymousOnChanged.body()._if(removeObserver)._then();
-				removeObserverBlock.invoke(getRemoveObserverMethod()).arg(_this());
+				removeObserverBlock.add(invoke(getRemoveObserverMethod()).arg(_this()));
 			}
 
 		} if (element.asType().getKind().isPrimitive()) {

@@ -24,12 +24,10 @@ import com.helger.jcodemodel.JMethod;
 import org.androidannotations.annotations.export.Export;
 import org.androidannotations.helper.ADIHelper;
 import org.androidannotations.holder.EBeanHolder;
-import org.androidannotations.internal.process.ProcessHolder;
-import org.androidannotations.plugin.PluginClassHolder;
 
+import java.util.List;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.util.ElementFilter;
-import java.util.List;
 
 import static com.helger.jcodemodel.JExpr.ref;
 import static com.helger.jcodemodel.JMod.PUBLIC;
@@ -97,10 +95,6 @@ public class EViewModelHolder extends BaseArchitectureComponentHolder {
 			eventHolder.registerAsEventListener();
 		}
 
-	}
-
-	protected ProcessHolder.Classes getClasses() {
-		return environment().getClasses();
 	}
 
 }

@@ -26,9 +26,12 @@ import org.androidannotations.holder.EComponentHolder;
 import pl.com.dspot.archiannotations.annotation.Observable;
 import pl.com.dspot.archiannotations.helper.override.APTCodeModelHelper;
 
+import java.util.List;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.util.ElementFilter;
 
 import static com.helger.jcodemodel.JExpr.*;
 import static com.helger.jcodemodel.JMod.PUBLIC;
@@ -50,12 +53,25 @@ public class ObservableHandler extends BaseAnnotationHandler<EComponentHolder> {
         if (!isSubtype(element, LIVE_DATA, getProcessingEnvironment())) {
             validation.addError("%s can only be used on an element that extends " + LIVE_DATA);
         }
+
+        String getterName = fieldToGetter(element.getSimpleName().toString());
+        boolean foundGetter = false;
+
+        List<ExecutableElement> methods = ElementFilter.methodsIn(element.getEnclosingElement().getEnclosedElements());
+        for (ExecutableElement method : methods) {
+            if (getterName.equals(method.getSimpleName().toString())) {
+                foundGetter = true;
+                break;
+            }
+        }
+
+        if (!foundGetter) {
+            validation.addError("You should declare a getter for this @Observable: " + element);
+        }
     }
 
     @Override
     public void process(Element element, EComponentHolder holder) {
-
-        final String fieldName = element.getSimpleName().toString();
         JFieldRef fieldRef = _this().ref(element.getSimpleName().toString());
 
         //Create the class if it wasn't initialized
@@ -65,17 +81,6 @@ public class ObservableHandler extends BaseAnnotationHandler<EComponentHolder> {
         if (observable.initialize() && !observable.lazyLoad()) {
             initializeInBlock(element, fieldRef, holder.getInitBodyInjectionBlock()._if(fieldRef.eq(_null()))._then());
         }
-
-        //Create Getter
-        AbstractJClass LiveData = codeModelHelper.elementTypeToJClass(element);
-        JMethod getterMethod = holder.getGeneratedClass().method(PUBLIC, LiveData, fieldToGetter(fieldName));
-
-        if (observable.lazyLoad()) {
-            initializeInBlock(element, fieldRef, getterMethod.body()._if(fieldRef.eq(_null()))._then());
-        }
-
-        getterMethod.body()._return(_this().ref(fieldName));
-
     }
 
     private void initializeInBlock(Element element, JFieldRef fieldRef, JBlock block) {

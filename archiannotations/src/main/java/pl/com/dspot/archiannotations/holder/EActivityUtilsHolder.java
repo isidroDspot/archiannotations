@@ -3,14 +3,13 @@ package pl.com.dspot.archiannotations.holder;
 import com.helger.jcodemodel.IJExpression;
 import com.helger.jcodemodel.IJStatement;
 import com.helger.jcodemodel.JBlock;
-import com.helger.jcodemodel.JFormatter;
 import com.helger.jcodemodel.JMethod;
 import com.helger.jcodemodel.JVar;
 import org.androidannotations.holder.EActivityHolder;
 import org.androidannotations.plugin.PluginClassHolder;
 import pl.com.dspot.archiannotations.helper.override.APTCodeModelHelper;
 
-import java.io.StringWriter;
+import static com.dspot.declex.action.util.ExpressionsHelper.statementToString;
 
 public class EActivityUtilsHolder extends PluginClassHolder<EActivityHolder> {
 
@@ -50,11 +49,7 @@ public class EActivityUtilsHolder extends PluginClassHolder<EActivityHolder> {
 
             if (content instanceof IJStatement) {
 
-                StringWriter writer = new StringWriter();
-                JFormatter formatter = new JFormatter(writer);
-                IJStatement statement = (IJStatement) content;
-                statement.state(formatter);
-                String statementString = writer.getBuffer().toString();
+                String statementString = statementToString((IJStatement) content);
 
                 if (statementString.trim().startsWith("super.")) {
                     newBody.add((IJStatement) content);

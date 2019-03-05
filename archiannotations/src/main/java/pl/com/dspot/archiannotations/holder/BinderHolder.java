@@ -264,7 +264,7 @@ public class BinderHolder extends PluginClassHolder<EComponentWithViewSupportHol
 
 			//Remove the observer when the ViewModel is not needed anymore
 			EViewModelHolder viewModelHolder = holder().getPluginHolder(new EViewModelHolder((EBeanHolder) holder()));
-			viewModelHolder.getOnClearedMethodBlock().invoke(observerHolder.getRemoveObserverMethod()).arg(observerGetMethod);
+			viewModelHolder.getOnClearedMethodBlock().add(invoke(observerHolder.getRemoveObserverMethod()).arg(observerGetMethod));
 
 			observerHolder.getRemoveObserverMethod().body()
 					._if(observerHolder.getRemoveObserverMethodParam().eq(observerGetMethod))._then()
@@ -317,7 +317,7 @@ public class BinderHolder extends PluginClassHolder<EComponentWithViewSupportHol
 			//CompoundButtons, if the param is boolean, it will set the checked state
 			if (isSubtype(viewType, COMPOUND_BUTTON, environment().getProcessingEnvironment())) {
 				if (observableClassName.equals("boolean") || observableClassName.equals(BOOLEAN)) {
-					block.invoke(viewRef, "setChecked").arg(param);
+					block.add(invoke(viewRef, "setChecked").arg(param));
 
 					//This ensures not to check against TextView (since a CompoundButton is a TextView descendant)
 					return;
@@ -326,34 +326,24 @@ public class BinderHolder extends PluginClassHolder<EComponentWithViewSupportHol
 
 			if (isSubtype(viewType, TEXT_VIEW, environment().getProcessingEnvironment())) {
 				if (isSubtype(observableClassName, "android.text.Spanned", environment().getProcessingEnvironment())) {
-					block.invoke(viewRef, "setText").arg(param);
+					block.add(invoke(viewRef, "setText").arg(param));
 				} else if (isSubtype(observableClassName, CHAR_SEQUENCE, environment().getProcessingEnvironment())) {
-					block.invoke(viewRef, "setText").arg(param);
+					block.add(invoke(viewRef, "setText").arg(param));
 				} else {
-					block.invoke(viewRef, "setText").arg(getJClass(String.class).staticInvoke("valueOf").arg(param));
+					block.add(invoke(viewRef, "setText").arg(getJClass(String.class).staticInvoke("valueOf").arg(param)));
 				}
 			}
 
 		} else {
 
-			block.invoke(viewRef, "set" + propertyName).arg(param);
+			block.add(invoke(viewRef, "set" + propertyName).arg(param));
 
 		}
 
 	}
 
 	private IJExpression getExpressionForField(VariableElement field) {
-
-		TypeMirror fieldType = field.asType();
-
-        if (fieldType.toString().endsWith(generationSuffix())) {
-            return ref(field.getSimpleName().toString());
-        } else {
-            return cast(getJClass(
-            		fieldType.toString() + generationSuffix()),
-					ref(field.getSimpleName().toString())
-			);
-        }
+ 		return ref(field.getSimpleName().toString());
 	}
 
 	private void exploreObservablesAndBindingMethodsIn(TypeElement typeElement, IJExpression invocation) {

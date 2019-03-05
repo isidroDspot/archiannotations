@@ -195,7 +195,7 @@ public class ViewModelHandler extends BaseAnnotationHandler<EComponentWithViewSu
         targetBlock = previousTargetBlock;
 
         //Call the bindTo method
-        JInvocation bindToInvoke = targetBlock.invoke(injectingField, EViewModelHolder.BIND_TO_METHOD_NAME).arg(holder.getContextRef());
+        JInvocation bindToInvoke = invoke(injectingField, EViewModelHolder.BIND_TO_METHOD_NAME).arg(holder.getContextRef());
         if (holder instanceof EActivityHolder || holder instanceof EFragmentHolder) {
             bindToInvoke.arg(_this());
         } else if (isEnclosedInEViewModel) {
@@ -203,6 +203,8 @@ public class ViewModelHandler extends BaseAnnotationHandler<EComponentWithViewSu
         } else {
             bindToInvoke.arg(holder.getContextRef());
         }
+
+        targetBlock.add(bindToInvoke);
 
         //Register as Lifecycle Observer if needed
         if (isSubtype(viewModelClassName, LIFECYCLE_OBSERVER, getProcessingEnvironment())) {
