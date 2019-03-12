@@ -164,9 +164,9 @@ public class ViewModelHandler extends BaseAnnotationHandler<EComponentWithViewSu
                     JConditional ifFragmentActivity = targetBlock._if(viewModelHolder.getRootViewField()._instanceof(getClasses().FRAGMENT_ACTIVITY));
 
                     ifFragmentActivity._then().add(
-                        getJClass(VIEW_MODEL_PROVIDERS)
+                            fieldRef.assign(getJClass(VIEW_MODEL_PROVIDERS)
                             .staticInvoke("of").arg(cast(getClasses().FRAGMENT_ACTIVITY, viewModelHolder.getRootViewField()))
-                            .invoke("get").arg(enhancedClass.dotclass())
+                            .invoke("get").arg(enhancedClass.dotclass()))
                     );
 
                     targetBlock = ifFragmentActivity._else();

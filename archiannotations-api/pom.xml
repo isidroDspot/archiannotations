@@ -7,7 +7,7 @@
     <parent>
         <groupId>pl.com.dspot</groupId>
         <artifactId>archiannotations-declex-parent</artifactId>
-        <version>0.1.2</version>
+        <version>0.1.3</version>
     </parent>
 
     <artifactId>archiannotations-declex-api</artifactId>
