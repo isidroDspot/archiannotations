@@ -91,12 +91,6 @@ public class ViewModelHandler extends BaseAnnotationHandler<EComponentWithViewSu
 
     @Override
     public JBlock getInvocationBlock(Element element, EComponentWithViewSupportHolder holder) {
-
-        if (holder instanceof EActivityHolder) {
-            EActivityUtilsHolder activityUtilsHolder = holder.getPluginHolder(new EActivityUtilsHolder((EActivityHolder) holder));
-            return activityUtilsHolder.getOnCreateAfterSuperBlock();
-        }
-
         return holder.getInitBodyInjectionBlock();
     }
 
@@ -135,25 +129,22 @@ public class ViewModelHandler extends BaseAnnotationHandler<EComponentWithViewSu
 
         //Inject the ViewModel
         ViewModel viewModel = element.getAnnotation(ViewModel.class);
+        JMethod dependencyProviderMethod = holder.createProviderMethod(getJClass(typeQualifiedName));
 
-        JBlock previousTargetBlock = targetBlock;
-        JInvocation injectedViewModel;
-        IJExpression lifecycleOwner;
+        JVar viewModelProvider = targetBlock.decl(getJClass(VIEW_MODEL_PROVIDER), "viewModelProvider");
         switch (viewModel.scope()) {
             case Activity:
 
                 //Add check for Fragment Activity Content
-                JBlock checkLifecycleBlock = holder.getInitBodyBeforeInjectionBlock()
-                        ._if(holder.getContextRef()._instanceof(getJClass(FRAGMENT_ACTIVITY)).not())._then();
+                JBlock checkLifecycleBlock = targetBlock._if(holder.getContextRef()._instanceof(getJClass(FRAGMENT_ACTIVITY)).not())._then();
 
                 checkLifecycleBlock._throw(_new(getJClass(IllegalStateException.class))
-                        .arg("This Bean can only be injected in the context of a FragmentActivity"));
+                        .arg("A ViewModel can only be injected in the context of a FragmentActivity"));
 
-                injectedViewModel = getJClass(VIEW_MODEL_PROVIDERS)
-                        .staticInvoke("of").arg(cast(getJClass(FRAGMENT_ACTIVITY), holder.getContextRef()))
-                        .invoke("get").arg(enhancedClass.dotclass());
-
-                lifecycleOwner = cast(getJClass(LIFECYCLE_OWNER), holder.getContextRef());
+                targetBlock.assign(
+                        viewModelProvider,
+                        getJClass(VIEW_MODEL_PROVIDERS).staticInvoke("of").arg(cast(getJClass(FRAGMENT_ACTIVITY), holder.getContextRef())));
+                        //.invoke("get").arg(enhancedClass.dotclass());
 
                 break;
 
@@ -163,36 +154,35 @@ public class ViewModelHandler extends BaseAnnotationHandler<EComponentWithViewSu
 
                     JConditional ifFragmentActivity = targetBlock._if(viewModelHolder.getRootViewField()._instanceof(getClasses().FRAGMENT_ACTIVITY));
 
-                    ifFragmentActivity._then().add(
-                            fieldRef.assign(getJClass(VIEW_MODEL_PROVIDERS)
-                            .staticInvoke("of").arg(cast(getClasses().FRAGMENT_ACTIVITY, viewModelHolder.getRootViewField()))
-                            .invoke("get").arg(enhancedClass.dotclass()))
+                    ifFragmentActivity._then().assign(
+                            viewModelProvider,
+                            getJClass(VIEW_MODEL_PROVIDERS).staticInvoke("of").arg(cast(getClasses().FRAGMENT_ACTIVITY, viewModelHolder.getRootViewField()))
                     );
 
-                    targetBlock = ifFragmentActivity._else();
-
-                    injectedViewModel = getJClass(VIEW_MODEL_PROVIDERS)
-                            .staticInvoke("of").arg(cast(getClasses().SUPPORT_V4_FRAGMENT, viewModelHolder.getRootViewField()))
-                            .invoke("get").arg(enhancedClass.dotclass());
-
-                    lifecycleOwner = cast(getJClass(LIFECYCLE_OWNER), viewModelHolder.getRootViewField());
+                    ifFragmentActivity._else().assign(
+                            viewModelProvider,
+                            getJClass(VIEW_MODEL_PROVIDERS).staticInvoke("of").arg(cast(getClasses().SUPPORT_V4_FRAGMENT, viewModelHolder.getRootViewField()))
+                    );
 
 
                 } else {
 
-                    injectedViewModel = getJClass(VIEW_MODEL_PROVIDERS)
-                            .staticInvoke("of").arg(_this())
-                            .invoke("get").arg(enhancedClass.dotclass());
-
-                    lifecycleOwner = _this();
+                    targetBlock.assign(
+                            viewModelProvider,
+                            getJClass(VIEW_MODEL_PROVIDERS).staticInvoke("of").arg(_this())
+                    );
 
                 }
         }
 
-        IJStatement assignment = fieldRef.assign(injectedViewModel);
-        targetBlock.add(assignment);
+        if (dependencyProviderMethod != null) {
+            JVar viewModelProviderParam = dependencyProviderMethod.param(getJClass(VIEW_MODEL_PROVIDER), "viewModelProvider");
+            JBlock dependencyProviderBody = dependencyProviderMethod.body();
+            dependencyProviderBody._return(viewModelProviderParam.invoke("get").arg(enhancedClass.dotclass()));
+        }
 
-        targetBlock = previousTargetBlock;
+        JInvocation providerInvoke = holder.getDependencyProvider().invoke(holder.getProviderMethod(getJClass(typeQualifiedName))).arg(viewModelProvider);
+
 
         //Call the bindTo method
         JInvocation bindToInvoke = invoke(injectingField, EViewModelHolder.BIND_TO_METHOD_NAME).arg(holder.getContextRef());
@@ -204,12 +194,30 @@ public class ViewModelHandler extends BaseAnnotationHandler<EComponentWithViewSu
             bindToInvoke.arg(holder.getContextRef());
         }
 
-        targetBlock.add(bindToInvoke);
-
         //Register as Lifecycle Observer if needed
         if (isSubtype(viewModelClassName, LIFECYCLE_OBSERVER, getProcessingEnvironment())) {
+
+            IJExpression lifecycleOwner;
+            switch (viewModel.scope()) {
+                case Activity:
+                    lifecycleOwner = cast(getJClass(LIFECYCLE_OWNER), holder.getContextRef());
+                    break;
+                default:
+
+                    if (isEnclosedInEViewModel) {
+                        lifecycleOwner = cast(getJClass(LIFECYCLE_OWNER), viewModelHolder.getRootViewField());
+                    } else {
+                        lifecycleOwner = _this();
+                    }
+            }
+
             bindToInvoke.arg(lifecycleOwner);
+
         }
+
+        IJStatement assignment = fieldRef.assign(providerInvoke);
+        targetBlock.add(assignment);
+        targetBlock.add(bindToInvoke);
 
     }
 
