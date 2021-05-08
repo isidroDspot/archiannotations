@@ -17,10 +17,13 @@ package pl.com.dspot.archiannotations.handler;
 
 import com.helger.jcodemodel.AbstractJClass;
 import com.helger.jcodemodel.IJAssignmentTarget;
+import com.helger.jcodemodel.IJStatement;
 import com.helger.jcodemodel.JBlock;
 import com.helger.jcodemodel.JConditional;
 import com.helger.jcodemodel.JFieldVar;
 import com.helger.jcodemodel.JInvocation;
+import com.helger.jcodemodel.JMethod;
+import com.helger.jcodemodel.JVar;
 import org.androidannotations.AndroidAnnotationsEnvironment;
 import org.androidannotations.ElementValidation;
 import org.androidannotations.handler.BaseAnnotationHandler;
@@ -35,6 +38,7 @@ import pl.com.dspot.archiannotations.holder.EViewModelHolder;
 import javax.lang.model.element.Element;
 import javax.lang.model.type.TypeMirror;
 
+import static com.helger.jcodemodel.JExpr._null;
 import static com.helger.jcodemodel.JExpr.cast;
 import static com.helger.jcodemodel.JExpr.lit;
 import static org.androidannotations.helper.LogHelper.logTagForClassHolder;
@@ -77,22 +81,34 @@ public class RootViewHandler extends BaseAnnotationHandler<EBeanHolder>implement
         EViewModelHolder viewModelHolder = holder.getPluginHolder(new EViewModelHolder(holder));
         JFieldVar rootViewField = viewModelHolder.getRootViewField();
 
+        JMethod dependencyProviderMethod = holder.createProviderMethod(getJClass(typeQualifiedName));
+        if (dependencyProviderMethod != null) {
+            JVar contextParam = dependencyProviderMethod.param(getClasses().CONTEXT, "context");
+            JVar rootViewParam = dependencyProviderMethod.param(getClasses().OBJECT, "rootView");
 
-        if (CanonicalNameConstants.OBJECT.equals(typeQualifiedName)) {
-            targetBlock.add(fieldRef.assign(rootViewField));
-        } else {
+            JBlock dependencyProviderBody = dependencyProviderMethod.body();
+            
+            if (CanonicalNameConstants.OBJECT.equals(typeQualifiedName)) {
+                dependencyProviderBody._return(rootViewParam);
+            } else {
 
-            AbstractJClass extendingRootViewClass = getEnvironment().getJClass(typeQualifiedName);
+                AbstractJClass extendingRootViewClass = getEnvironment().getJClass(typeQualifiedName);
 
-            JConditional cond = getInvocationBlock(element, holder)._if(rootViewField._instanceof(extendingRootViewClass));
-            cond._then().add(fieldRef.assign(cast(extendingRootViewClass, rootViewField)));
+                JConditional cond = dependencyProviderBody._if(rootViewParam._instanceof(extendingRootViewClass));
+                cond._then()._return(cast(extendingRootViewClass, rootViewParam));
 
-            JInvocation warningInvoke = getClasses().LOG.staticInvoke("w");
-            warningInvoke.arg(logTagForClassHolder(holder));
-            warningInvoke.arg(lit("Due to the class ").plus(holder.getContextRef().invoke("getClass").invoke("getSimpleName"))
-                    .plus(lit(", the @RootView " + extendingRootViewClass.name() + " won't be populated")));
-            cond._else().add(warningInvoke);
+                JInvocation warningInvoke = getClasses().LOG.staticInvoke("w");
+                warningInvoke.arg(logTagForClassHolder(holder));
+                warningInvoke.arg(lit("Due to the class ").plus(contextParam.invoke("getClass").invoke("getSimpleName"))
+                        .plus(lit(", the @RootView " + extendingRootViewClass.name() + " won't be populated")));
+                cond._else().add(warningInvoke);
+
+                dependencyProviderBody._return(_null());
+            }
         }
+
+        IJStatement assignment = fieldRef.assign(holder.getDependencyProvider().invoke(holder.getProviderMethod(getJClass(typeQualifiedName))).arg(holder.getContextRef()).arg(rootViewField));
+        targetBlock.add(assignment);
     }
 
     @Override

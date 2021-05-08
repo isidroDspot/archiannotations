@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.helger.jcodemodel.JExpr.*;
+import static com.helger.jcodemodel.JMod.PRIVATE;
 import static java.util.Arrays.asList;
 import static org.androidannotations.helper.CanonicalNameConstants.FRAGMENT_ACTIVITY;
 import static org.androidannotations.helper.ModelConstants.generationSuffix;
@@ -111,13 +112,10 @@ public class ViewModelHandler extends BaseAnnotationHandler<EComponentWithViewSu
         String typeQualifiedName = typeMirror.toString();
         AbstractJClass enhancedClass = getJClass(annotationHelper.generatedClassQualifiedNameFromQualifiedName(typeQualifiedName));
 
-        IJExpression injectingField;
         String viewModelClassName;
         if (element.asType().toString().endsWith(generationSuffix())) {
-            injectingField = fieldRef;
             viewModelClassName = element.asType().toString().substring(0, element.asType().toString().length() - 1);
         } else {
-            injectingField = cast(enhancedClass, fieldRef);
             viewModelClassName = element.asType().toString();
         }
 
@@ -131,6 +129,7 @@ public class ViewModelHandler extends BaseAnnotationHandler<EComponentWithViewSu
         ViewModel viewModel = element.getAnnotation(ViewModel.class);
         JMethod dependencyProviderMethod = holder.createProviderMethod(getJClass(typeQualifiedName));
 
+        targetBlock = targetBlock.block();
         JVar viewModelProvider = targetBlock.decl(getJClass(VIEW_MODEL_PROVIDER), "viewModelProvider");
         switch (viewModel.scope()) {
             case Activity:
@@ -144,7 +143,6 @@ public class ViewModelHandler extends BaseAnnotationHandler<EComponentWithViewSu
                 targetBlock.assign(
                         viewModelProvider,
                         getJClass(VIEW_MODEL_PROVIDERS).staticInvoke("of").arg(cast(getJClass(FRAGMENT_ACTIVITY), holder.getContextRef())));
-                        //.invoke("get").arg(enhancedClass.dotclass());
 
                 break;
 
@@ -177,26 +175,38 @@ public class ViewModelHandler extends BaseAnnotationHandler<EComponentWithViewSu
 
         if (dependencyProviderMethod != null) {
             JVar viewModelProviderParam = dependencyProviderMethod.param(getJClass(VIEW_MODEL_PROVIDER), "viewModelProvider");
+            JVar contextParam = dependencyProviderMethod.param(getClasses().CONTEXT, "context");
+            JVar rootViewParam = dependencyProviderMethod.param(getClasses().OBJECT, "rootView");
+            JVar lifecycleOwnerParam = null;
+
+            if (isSubtype(viewModelClassName, LIFECYCLE_OBSERVER, getProcessingEnvironment())) {
+                lifecycleOwnerParam = dependencyProviderMethod.param(getJClass(LIFECYCLE_OWNER), "lifecycleOwner");
+            }
+
             JBlock dependencyProviderBody = dependencyProviderMethod.body();
-            dependencyProviderBody._return(viewModelProviderParam.invoke("get").arg(enhancedClass.dotclass()));
+
+            JVar viewModelVar = dependencyProviderBody.decl(enhancedClass, "viewModel", viewModelProviderParam.invoke("get").arg(enhancedClass.dotclass()));
+
+            JInvocation bindToInvoke = invoke(viewModelVar, EViewModelHolder.BIND_TO_METHOD_NAME).arg(contextParam).arg(rootViewParam);
+            if (lifecycleOwnerParam != null) {
+                bindToInvoke.arg(lifecycleOwnerParam);
+            }
+
+            dependencyProviderBody.add(bindToInvoke);
+            dependencyProviderBody._return(viewModelVar);
         }
 
-        JInvocation providerInvoke = holder.getDependencyProvider().invoke(holder.getProviderMethod(getJClass(typeQualifiedName))).arg(viewModelProvider);
-
-
-        //Call the bindTo method
-        JInvocation bindToInvoke = invoke(injectingField, EViewModelHolder.BIND_TO_METHOD_NAME).arg(holder.getContextRef());
+        IJExpression rootView;
         if (holder instanceof EActivityHolder || holder instanceof EFragmentHolder) {
-            bindToInvoke.arg(_this());
+            rootView = _this();
         } else if (isEnclosedInEViewModel) {
-            bindToInvoke.arg(viewModelHolder.getRootViewField());
+            rootView = viewModelHolder.getRootViewField();
         } else {
-            bindToInvoke.arg(holder.getContextRef());
+            rootView = holder.getContextRef();
         }
 
-        //Register as Lifecycle Observer if needed
+        JInvocation providerInvoke = holder.getDependencyProvider().invoke(holder.getProviderMethod(getJClass(typeQualifiedName))).arg(viewModelProvider).arg(holder.getContextRef()).arg(rootView);
         if (isSubtype(viewModelClassName, LIFECYCLE_OBSERVER, getProcessingEnvironment())) {
-
             IJExpression lifecycleOwner;
             switch (viewModel.scope()) {
                 case Activity:
@@ -210,14 +220,11 @@ public class ViewModelHandler extends BaseAnnotationHandler<EComponentWithViewSu
                         lifecycleOwner = _this();
                     }
             }
-
-            bindToInvoke.arg(lifecycleOwner);
-
+            providerInvoke.arg(lifecycleOwner);
         }
 
         IJStatement assignment = fieldRef.assign(providerInvoke);
         targetBlock.add(assignment);
-        targetBlock.add(bindToInvoke);
 
     }
 

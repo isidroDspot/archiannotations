@@ -12,7 +12,7 @@
 
     <groupId>pl.com.dspot</groupId>
     <artifactId>archiannotations-declex-parent</artifactId>
-    <version>0.1.4</version>
+    <version>0.1.9</version>
     <packaging>pom</packaging>
 
     <name>Archiannotations Parent</name>
@@ -61,7 +61,7 @@
     </modules>
 
     <properties>
-        <declex.version>2.0.a.32</declex.version>
+        <declex.version>2.0.a.35</declex.version>
     </properties>
 
     <repositories>

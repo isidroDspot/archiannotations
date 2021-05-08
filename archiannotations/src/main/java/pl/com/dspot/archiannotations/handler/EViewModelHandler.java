@@ -62,7 +62,6 @@ public class EViewModelHandler extends BaseAnnotationHandler<EBeanHolder> {
 
     @Override
     public void process(Element element, EBeanHolder holder) {
-
         EViewModelHolder viewModelHolder = holder.getPluginHolder(new EViewModelHolder(holder));
 
         viewModelHolder.getEmptyConstructorMethod();
@@ -74,38 +73,5 @@ public class EViewModelHandler extends BaseAnnotationHandler<EBeanHolder> {
 
         //Clear the rootView variable after the injections, to avoid that the class hold references to a view/context directly
         holder.getInitBodyAfterInjectionBlock().assign(viewModelHolder.getRootViewField(), _null());
-
-        //Search for all the injections, and set them to null in the "onCleared", so no reference is kept
-        //after the ViewModel was marked as not needed
-        for (Element elem : element.getEnclosedElements()) {
-
-            boolean markedToRemove = false;
-
-            if (elem.getAnnotation(Bean.class) != null) {
-                markedToRemove = true;
-            }
-
-            if (elem.getAnnotation(ViewModel.class) != null) {
-                markedToRemove = true;
-            }
-
-            if (elem.getAnnotation(ViewPresenter.class) != null) {
-                markedToRemove = true;
-            }
-
-            if (elem.getAnnotation(RootContext.class) != null) {
-                markedToRemove = true;
-            }
-
-            if (elem.getAnnotation(RootView.class) != null) {
-                markedToRemove = true;
-            }
-
-            if (markedToRemove) {
-                viewModelHolder.getOnClearedMethodFinalBlock().assign(_this().ref(elem.getSimpleName().toString()), _null());
-            }
-
-        }
-
     }
 }
