@@ -61,7 +61,7 @@
     </modules>
 
     <properties>
-        <declex.version>2.0.a.35</declex.version>
+        <declex.version>develop-b5103e3ca3-1</declex.version>
     </properties>
 
     <repositories>
@@ -84,6 +84,11 @@
             <url>file://C:\Users\adria\.m2\repository</url>
         </repository>
 
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+
     </repositories>
 
     <pluginRepositories>
@@ -104,17 +109,15 @@
         <dependencies>
 
             <dependency>
-                <groupId>com.dspot</groupId>
+                <groupId>com.github.isidrodspot.declex</groupId>
                 <artifactId>declex</artifactId>
                 <version>${declex.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <dependency>
-                <groupId>com.dspot</groupId>
+                <groupId>com.github.isidrodspot.declex</groupId>
                 <artifactId>declex-api</artifactId>
                 <version>${declex.version}</version>
-                <scope>provided</scope>
             </dependency>
 
         </dependencies>

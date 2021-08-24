@@ -23,7 +23,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.dspot</groupId>
+            <groupId>com.github.isidrodspot.declex</groupId>
             <artifactId>declex</artifactId>
         </dependency>
 
