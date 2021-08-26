@@ -61,7 +61,7 @@
     </modules>
 
     <properties>
-        <declex.version>develop-b5103e3ca3-1</declex.version>
+        <declex.version>2.0.a.37</declex.version>
     </properties>
 
     <repositories>
